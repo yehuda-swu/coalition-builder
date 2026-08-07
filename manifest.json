@@ -1,0 +1,9 @@
+{
+  "name":"Coalition Builder",
+  "short_name":"Coalition Builder",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#f5f8fb",
+  "theme_color":"#0b2f5b",
+  "icons":[]
+}
