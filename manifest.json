@@ -1,9 +1,9 @@
 {
-  "name": "Coalition Builder",
-  "short_name": "Coalition Builder",
+  "name": "61: Build the Coalition",
+  "short_name": "61 Coalition",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#edf4fa",
-  "theme_color": "#082d57",
+  "background_color": "#edf5fa",
+  "theme_color": "#082f5f",
   "icons": []
 }
