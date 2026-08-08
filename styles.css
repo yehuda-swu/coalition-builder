@@ -270,3 +270,83 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 }
 .hardStop strong{display:block;color:#a2333c}
 .hardStop span{display:block;color:#754c50;font-size:.8rem;margin-top:3px;line-height:1.4}
+
+
+/* Build 4.1 welcome artwork */
+.posterWelcome{
+  min-height:100vh;
+  background:#082f5f;
+  display:grid;
+  place-items:center;
+  padding:18px;
+}
+.posterStage{
+  width:min(720px,100%);
+  position:relative;
+  display:grid;
+  justify-items:center;
+}
+.welcomePoster{
+  width:100%;
+  max-height:88vh;
+  object-fit:contain;
+  border-radius:24px;
+  box-shadow:0 30px 80px rgba(0,0,0,.28);
+}
+.posterStart{
+  margin-top:15px;
+  border:0;
+  border-radius:999px;
+  background:#fff;
+  color:#082f5f;
+  font-weight:950;
+  padding:14px 27px;
+  font-size:1rem;
+  cursor:pointer;
+  box-shadow:0 10px 28px rgba(0,0,0,.18);
+}
+.posterStart:hover{transform:translateY(-1px)}
+
+/* Build 4.1 coalition report */
+.reportGrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:18px 0;
+  text-align:left;
+}
+.reportCard{
+  display:grid;
+  grid-template-columns:38px 1fr;
+  gap:10px;
+  align-items:start;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:#f8fbfd;
+}
+.reportCard.pass{border-color:#cce4c7;background:#f5fbf2}
+.reportCard.fail{border-color:#edc4c8;background:#fff7f8}
+.reportStatus{
+  width:34px;height:34px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#dfe9f0;color:#23445e;font-weight:950;
+}
+.reportCard.pass .reportStatus{background:#dff2da;color:#397940}
+.reportCard.fail .reportStatus{background:#ffe0e3;color:#a3363e}
+.reportCard span{
+  display:block;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:.68rem;
+  color:var(--muted);
+  font-weight:900;
+}
+.reportCard strong{display:block;font-size:1.1rem;color:var(--navy);margin-top:3px}
+.reportCard small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}
+
+@media(max-width:700px){
+  .reportGrid{grid-template-columns:1fr}
+  .posterWelcome{padding:10px}
+  .welcomePoster{border-radius:18px}
+}
