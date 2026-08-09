@@ -20,8 +20,24 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",
 function analyseIssue(key){
   const c=chosen();
 
-  // Special handling for the question of working with non Zionist Arab parties.
-  // This issue only becomes relevant if an Arab party is actually selected.
+  // Joint Arab List is an automatic coalition dealbreaker.
+  // If it is selected, the Arab party participation issue must fail immediately
+  // and no compromise or concession option should ever be shown.
+  if(key==="arab" && c.some(p=>p.id==="joint_arab_list")){
+    const joint=c.find(p=>p.id==="joint_arab_list");
+    return {
+      key,
+      support:[joint],
+      oppose:c.filter(p=>p.id!=="joint_arab_list"),
+      flexible:[],
+      supportRed:[joint],
+      opposeRed:[],
+      category:"Red line conflict",
+      explanation:"Joint Arab List will not join any governing coalition. This is an automatic dealbreaker and cannot be resolved through compromise."
+    };
+  }
+
+  // If no Arab party is selected, this issue is not triggered.
   if(key==="arab"){
     const selectedArab=c.filter(p=>p.sector==="Arab");
     if(selectedArab.length===0){
@@ -36,26 +52,6 @@ function analyseIssue(key){
         explanation:"No non Zionist Arab party is included in this coalition, so this issue is not currently triggered."
       };
     }
-
-    // Joint Arab List has a separate absolute rule: it will not join any governing coalition.
-    // We deliberately do not expose that during policy negotiation. It is revealed later
-    // during the Party Relationship Check.
-    const joint=selectedArab.find(p=>p.id==="joint_arab_list");
-    if(joint){
-      const support=c.filter(p=>p.positions[key].stance==="Support");
-      const oppose=c.filter(p=>p.positions[key].stance==="Oppose");
-      const flexible=c.filter(p=>p.positions[key].stance==="Flexible");
-      return {
-        key,
-        support,
-        oppose,
-        flexible,
-        supportRed:[],
-        opposeRed:[],
-        category:"Deferred coalition rule",
-        explanation:"A separate coalition participation rule applies to one of the selected parties. This will be revealed at the Party Relationship Check."
-      };
-    }
   }
 
   const support=c.filter(p=>p.positions[key].stance==="Support");
@@ -64,25 +60,19 @@ function analyseIssue(key){
 
   const supportAbsolute=support.filter(p=>p.positions[key].strength==="Absolute Red Line");
   const opposeAbsolute=oppose.filter(p=>p.positions[key].strength==="Absolute Red Line");
-  const supportRed=support.filter(p=>p.positions[key].strength==="Red Line");
-  const opposeRed=oppose.filter(p=>p.positions[key].strength==="Red Line");
+  const supportRed=support.filter(p=>["Red line","Red Line"].includes(p.positions[key].strength));
+  const opposeRed=oppose.filter(p=>["Red line","Red Line"].includes(p.positions[key].strength));
 
   let category="Compatible";
   let explanation="There is no direct support and opposition clash on this issue.";
 
   if(support.length&&oppose.length){
     if((supportAbsolute.length&&oppose.length)||(opposeAbsolute.length&&support.length)){
-      const opposingAbsolute = supportAbsolute.length && opposeAbsolute.length;
-      if(opposingAbsolute || (supportAbsolute.length && opposeRed.length) || (opposeAbsolute.length && supportRed.length)){
-        category="Red line conflict";
-        explanation="The coalition contains an absolute position that directly conflicts with another party's red line. This cannot be solved by an ordinary compromise.";
-      }else{
-        category="Concession required";
-        explanation="One side holds an absolute position. The flexible side must abandon its position for the coalition to continue.";
-      }
+      category="Red line conflict";
+      explanation="The coalition contains an absolute position that directly conflicts with another party. This cannot be solved through compromise.";
     }else if(supportRed.length&&opposeRed.length){
       category="Red line conflict";
-      explanation="Both sides contain a stated red line. This issue cannot be solved by an ordinary coalition compromise.";
+      explanation="Both sides contain a stated red line. This issue cannot be solved through compromise.";
     }else if(supportRed.length||opposeRed.length){
       category="Concession required";
       explanation="One side treats this issue as a red line. The flexible side would have to concede.";
@@ -300,9 +290,7 @@ function workshopIssueBlock(i){
     </div>`;
   }else if(i.category==="Red line conflict"){
     controls=`<div class="hardStop"><strong>RED LINE</strong><span>This disagreement cannot be settled by an audience vote.</span></div>`;
-  }else if(i.category==="Deferred coalition rule"){
-    controls=`<div class="deferredRule"><strong>RULE HELD BACK</strong><span>A separate coalition participation rule will be revealed at the Party Relationship Check.</span></div>`;
-  }
+
   return `<article class="workshopIssueCard ${i.category==="Red line conflict"?"hard":""}">
     <div class="issueTop"><div><div class="issueName">${issues[i.key]}</div><div class="issueExplanation">${esc(i.explanation)}</div></div><span class="issueStatus">${i.category}</span></div>
     <div class="workshopPositions">${positions.map(x=>`<span>${esc(x)}</span>`).join("")}</div>${controls}
