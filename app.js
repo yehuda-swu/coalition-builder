@@ -19,27 +19,87 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",
 
 function analyseIssue(key){
   const c=chosen();
+
+  // Special handling for the question of working with non Zionist Arab parties.
+  // This issue only becomes relevant if an Arab party is actually selected.
+  if(key==="arab"){
+    const selectedArab=c.filter(p=>p.sector==="Arab");
+    if(selectedArab.length===0){
+      return {
+        key,
+        support:[],
+        oppose:[],
+        flexible:c,
+        supportRed:[],
+        opposeRed:[],
+        category:"Compatible",
+        explanation:"No non Zionist Arab party is included in this coalition, so this issue is not currently triggered."
+      };
+    }
+
+    // Joint Arab List has a separate absolute rule: it will not join any governing coalition.
+    // We deliberately do not expose that during policy negotiation. It is revealed later
+    // during the Party Relationship Check.
+    const joint=selectedArab.find(p=>p.id==="joint_arab_list");
+    if(joint){
+      const support=c.filter(p=>p.positions[key].stance==="Support");
+      const oppose=c.filter(p=>p.positions[key].stance==="Oppose");
+      const flexible=c.filter(p=>p.positions[key].stance==="Flexible");
+      return {
+        key,
+        support,
+        oppose,
+        flexible,
+        supportRed:[],
+        opposeRed:[],
+        category:"Deferred coalition rule",
+        explanation:"A separate coalition participation rule applies to one of the selected parties. This will be revealed at the Party Relationship Check."
+      };
+    }
+  }
+
   const support=c.filter(p=>p.positions[key].stance==="Support");
   const oppose=c.filter(p=>p.positions[key].stance==="Oppose");
   const flexible=c.filter(p=>p.positions[key].stance==="Flexible");
-  const supportRed=support.filter(p=>p.positions[key].strength==="Red line");
-  const opposeRed=oppose.filter(p=>p.positions[key].strength==="Red line");
+
+  const supportAbsolute=support.filter(p=>p.positions[key].strength==="Absolute Red Line");
+  const opposeAbsolute=oppose.filter(p=>p.positions[key].strength==="Absolute Red Line");
+  const supportRed=support.filter(p=>p.positions[key].strength==="Red Line");
+  const opposeRed=oppose.filter(p=>p.positions[key].strength==="Red Line");
+
   let category="Compatible";
   let explanation="There is no direct support and opposition clash on this issue.";
+
   if(support.length&&oppose.length){
-    if(supportRed.length&&opposeRed.length){
+    if((supportAbsolute.length&&oppose.length)||(opposeAbsolute.length&&support.length)){
+      const opposingAbsolute = supportAbsolute.length && opposeAbsolute.length;
+      if(opposingAbsolute || (supportAbsolute.length && opposeRed.length) || (opposeAbsolute.length && supportRed.length)){
+        category="Red line conflict";
+        explanation="The coalition contains an absolute position that directly conflicts with another party's red line. This cannot be solved by an ordinary compromise.";
+      }else{
+        category="Concession required";
+        explanation="One side holds an absolute position. The flexible side must abandon its position for the coalition to continue.";
+      }
+    }else if(supportRed.length&&opposeRed.length){
       category="Red line conflict";
       explanation="Both sides contain a stated red line. This issue cannot be solved by an ordinary coalition compromise.";
-    } else if(supportRed.length||opposeRed.length){
+    }else if(supportRed.length||opposeRed.length){
       category="Concession required";
       explanation="One side treats this issue as a red line. The flexible side would have to concede.";
-    } else {
+    }else{
       category="Negotiable";
-      explanation="The parties disagree, but neither side treats the issue as a red line.";
+      explanation="The parties disagree, but neither side treats the issue as an absolute condition.";
     }
   }
-  return {key,support,oppose,flexible,supportRed,opposeRed,category,explanation};
+
+  return {
+    key,support,oppose,flexible,
+    supportRed:[...supportRed,...supportAbsolute],
+    opposeRed:[...opposeRed,...opposeAbsolute],
+    category,explanation
+  };
 }
+
 function policyAnalysis(){return Object.keys(issues).map(analyseIssue)}
 function hardPolicyConflicts(){return policyAnalysis().filter(i=>i.category==="Red line conflict")}
 function unresolvedNegotiations(){return policyAnalysis().filter(i=>(i.category==="Negotiable"||i.category==="Concession required")&&!state.policyDecisions[i.key])}
@@ -227,8 +287,8 @@ function workshopPolicyStage(){
 function workshopIssueBlock(i){
   const decision=state.policyDecisions[i.key];
   const positions=[
-    ...i.support.map(p=>`${p.name}: SUPPORTS${p.positions[i.key].strength==="Red line"?" · RED LINE":""}`),
-    ...i.oppose.map(p=>`${p.name}: OPPOSES${p.positions[i.key].strength==="Red line"?" · RED LINE":""}`),
+    ...i.support.map(p=>`${p.name}: SUPPORTS${(p.positions[i.key].strength==="Red line"||p.positions[i.key].strength==="Red Line")?" · RED LINE":p.positions[i.key].strength==="Absolute Red Line"?" · ABSOLUTE":""}`),
+    ...i.oppose.map(p=>`${p.name}: OPPOSES${(p.positions[i.key].strength==="Red line"||p.positions[i.key].strength==="Red Line")?" · RED LINE":p.positions[i.key].strength==="Absolute Red Line"?" · ABSOLUTE":""}`),
     ...i.flexible.map(p=>`${p.name}: FLEXIBLE`)
   ];
   let controls="";
@@ -240,6 +300,8 @@ function workshopIssueBlock(i){
     </div>`;
   }else if(i.category==="Red line conflict"){
     controls=`<div class="hardStop"><strong>RED LINE</strong><span>This disagreement cannot be settled by an audience vote.</span></div>`;
+  }else if(i.category==="Deferred coalition rule"){
+    controls=`<div class="deferredRule"><strong>RULE HELD BACK</strong><span>A separate coalition participation rule will be revealed at the Party Relationship Check.</span></div>`;
   }
   return `<article class="workshopIssueCard ${i.category==="Red line conflict"?"hard":""}">
     <div class="issueTop"><div><div class="issueName">${issues[i.key]}</div><div class="issueExplanation">${esc(i.explanation)}</div></div><span class="issueStatus">${i.category}</span></div>
@@ -300,7 +362,7 @@ function classroomPolicyStage(){
 
 function classIssueBlock(i){
   const decision=state.policyDecisions[i.key];
-  const selectedNames=[...i.support.map(p=>`${p.name}: supports${p.positions[i.key].strength==="Red line"?" · RED LINE":""}`),...i.oppose.map(p=>`${p.name}: opposes${p.positions[i.key].strength==="Red line"?" · RED LINE":""}`),...i.flexible.map(p=>`${p.name}: flexible`)];
+  const selectedNames=[...i.support.map(p=>`${p.name}: supports${(p.positions[i.key].strength==="Red line"||p.positions[i.key].strength==="Red Line")?" · RED LINE":p.positions[i.key].strength==="Absolute Red Line"?" · ABSOLUTE":""}`),...i.oppose.map(p=>`${p.name}: opposes${(p.positions[i.key].strength==="Red line"||p.positions[i.key].strength==="Red Line")?" · RED LINE":p.positions[i.key].strength==="Absolute Red Line"?" · ABSOLUTE":""}`),...i.flexible.map(p=>`${p.name}: flexible`)];
   let controls="";
   if(i.category==="Negotiable"||i.category==="Concession required"){
     controls=`<div class="classDecisionButtons">

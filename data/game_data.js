@@ -29,10 +29,10 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Red line"},
         inquiry:{stance:"Oppose",strength:"Flexible"},
         judicial:{stance:"Support",strength:"Flexible"},
-        arab:{stance:"Oppose",strength:"Red line"},
+        arab:{stance:"Oppose",strength:"Flexible"},
         charedi:{stance:"Oppose",strength:"Flexible"}
       },
-      veto:["democrats","joint_arab_list","raam"]
+      veto:["democrats"]
     },
     {
       id:"yashar", name:"Yashar", leader:"Gadi Eisenkot", seats:24, sector:"Left",
@@ -94,7 +94,7 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Red line"},
         inquiry:{stance:"Oppose",strength:"Flexible"},
         judicial:{stance:"Support",strength:"Flexible"},
-        arab:{stance:"Oppose",strength:"Red line"},
+        arab:{stance:"Oppose",strength:"Absolute Red Line"},
         charedi:{stance:"Support",strength:"Flexible"}
       },
       veto:["democrats","joint_arab_list","raam"]
@@ -107,7 +107,7 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Red line"},
         inquiry:{stance:"Oppose",strength:"Flexible"},
         judicial:{stance:"Support",strength:"Flexible"},
-        arab:{stance:"Oppose",strength:"Red line"},
+        arab:{stance:"Oppose",strength:"Absolute Red Line"},
         charedi:{stance:"Oppose",strength:"Flexible"}
       },
       veto:["democrats","joint_arab_list","raam"]
@@ -148,7 +148,7 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Red line"},
         inquiry:{stance:"Flexible",strength:"Flexible"},
         judicial:{stance:"Flexible",strength:"Flexible"},
-        arab:{stance:"Support",strength:"Red line"},
+        arab:{stance:"Support",strength:"Absolute Red Line"},
         charedi:{stance:"Flexible",strength:"Flexible"}
       },
       veto:["likud","otzma_yehudit","hatzionut_hadati"]

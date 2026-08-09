@@ -679,3 +679,24 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 .workshopEligibility .coalitionEligibilityCard{
   padding:25px;
 }
+
+
+/* Refined Arab coalition rule logic */
+.deferredRule{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid #a9c9df;
+  background:#eef7fc;
+  border-radius:13px;
+}
+.deferredRule strong{
+  display:block;
+  color:#245d83;
+}
+.deferredRule span{
+  display:block;
+  color:#587487;
+  font-size:.8rem;
+  margin-top:3px;
+  line-height:1.4;
+}
