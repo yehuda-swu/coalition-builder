@@ -142,7 +142,7 @@ window.GAME_DATA = {
       id:"joint_arab_list", name:"Joint Arab List", leader:"Youssef Jabareen", seats:5, sector:"Arab",
       logo:"assets/logos/joint_arab_list.webp", photo:"assets/leaders/jabareen.webp",
       coalitionEligible:false,
-      coalitionEligibilityReason:"Joint Arab List will not join a governing coalition.",
+      coalitionEligibilityReason:"Joint Arab List will not take part in any government.",
       leadership:"Refuses Netanyahu",
       positions:{
         security:{stance:"Support",strength:"Red line"},
