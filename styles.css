@@ -635,3 +635,47 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
     font-size:.82rem;
   }
 }
+
+
+/* Joint Arab List coalition participation rule */
+.coalitionEligibilityBoard{
+  display:grid;
+  gap:12px;
+  margin-top:16px;
+}
+.coalitionEligibilityCard{
+  background:linear-gradient(135deg,#fff3f4,#ffffff);
+  border:3px solid #c94c56;
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+  box-shadow:0 12px 28px rgba(105,26,35,.08);
+}
+.eligibilityStamp{
+  display:inline-flex;
+  padding:7px 11px;
+  border-radius:999px;
+  background:#c94c56;
+  color:#fff;
+  font-size:.7rem;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.coalitionEligibilityCard h3{
+  margin:12px 0 5px;
+  color:var(--navy);
+  font-size:1.55rem;
+}
+.coalitionEligibilityCard p{
+  margin:0;
+  color:#6e5054;
+  font-size:1rem;
+}
+.coalitionEligibilityCard strong{
+  display:block;
+  margin-top:10px;
+  color:#a1323a;
+}
+.workshopEligibility .coalitionEligibilityCard{
+  padding:25px;
+}

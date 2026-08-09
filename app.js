@@ -45,6 +45,16 @@ function hardPolicyConflicts(){return policyAnalysis().filter(i=>i.category==="R
 function unresolvedNegotiations(){return policyAnalysis().filter(i=>(i.category==="Negotiable"||i.category==="Concession required")&&!state.policyDecisions[i.key])}
 function failedNegotiations(){return policyAnalysis().filter(i=>state.policyDecisions[i.key]==="fail")}
 
+
+function coalitionEligibilityConflicts(){
+  return chosen()
+    .filter(p=>p.coalitionEligible===false)
+    .map(p=>({
+      party:p,
+      reason:p.coalitionEligibilityReason || `${p.name} will not join a governing coalition.`
+    }));
+}
+
 function relationshipConflicts(){
   const c=chosen();
   const byId=Object.fromEntries(c.map(p=>[p.id,p]));
@@ -72,14 +82,15 @@ function leadershipAnalysis(){
   return {requires,refuses,flexible,conflict,route};
 }
 function coalitionReport(){
-  const total=totalSeats(),relationships=relationshipConflicts(),hardPolicies=hardPolicyConflicts(),failed=failedNegotiations(),leadership=leadershipAnalysis();
+  const total=totalSeats(),eligibility=coalitionEligibilityConflicts(),relationships=relationshipConflicts(),hardPolicies=hardPolicyConflicts(),failed=failedNegotiations(),leadership=leadershipAnalysis();
   const reasons=[];
   if(total<majority) reasons.push(`The coalition has only ${total} seats and needs at least ${majority}.`);
+  eligibility.forEach(x=>reasons.push(`${x.party.name}: ${x.reason}`));
   relationships.forEach(x=>reasons.push(`${x.a.name} and ${x.b.name} have an absolute coalition veto in this scenario.`));
   hardPolicies.forEach(i=>reasons.push(`${issues[i.key]} contains opposing red lines.`));
   failed.forEach(i=>reasons.push(`${issues[i.key]} was marked as a deal breaker.`));
   if(leadership.conflict) reasons.push("Some parties require Netanyahu while others refuse to serve under him.");
-  return {total,relationships,hardPolicies,failed,leadership,success:total>=majority&&relationships.length===0&&hardPolicies.length===0&&failed.length===0&&!leadership.conflict,reasons};
+  return {total,eligibility,relationships,hardPolicies,failed,leadership,success:total>=majority&&eligibility.length===0&&relationships.length===0&&hardPolicies.length===0&&failed.length===0&&!leadership.conflict,reasons};
 }
 
 function render(){
@@ -307,44 +318,68 @@ function classIssueBlock(i){
 
 
 function classroomRelationshipStage(){
+  const eligibility=coalitionEligibilityConflicts();
   const conflicts=relationshipConflicts();
+  const blocked=eligibility.length>0 || conflicts.length>0;
   return `
     <section class="relationshipReveal">
       <div class="stageLabel">Stage Three</div>
       <h2>Party relationship check</h2>
-      <p>You have already built a majority and tested the policy positions. Now reveal whether any selected parties have ruled out governing together.</p>
+      <p>You have already built a majority and tested the policy positions. Now reveal whether the selected parties can actually enter the same governing coalition.</p>
     </section>
 
-    ${conflicts.length
-      ? `<div class="relationshipConflictBoard">
-          ${conflicts.map(x=>`<div class="relationshipConflictCard">
-            <div class="relationshipVs"><span>${esc(x.a.name)}</span><strong>VS</strong><span>${esc(x.b.name)}</span></div>
-            <p>These parties have an absolute coalition veto in this workshop scenario.</p>
-          </div>`).join("")}
-        </div>
-        <div class="callout danger"><h2>Coalition partner conflict</h2><p>Your majority cannot currently form a government. Remove or replace one of the conflicting parties.</p><button class="dangerBtn hugeBtn" id="relationshipBackBuild">Return to coalition</button></div>`
-      : `<div class="callout success"><h2>No party relationship vetoes</h2><p>Your selected parties have passed the party relationship test. You can now reveal the leadership question.</p><button class="secondary hugeBtn" id="relationshipContinue">Continue to leadership</button></div>`
+    ${eligibility.length?`<div class="coalitionEligibilityBoard">
+      ${eligibility.map(x=>`<div class="coalitionEligibilityCard">
+        <div class="eligibilityStamp">COALITION PARTICIPATION RED LINE</div>
+        <h3>${esc(x.party.name)}</h3>
+        <p>${esc(x.reason)}</p>
+        <strong>Your coalition cannot form with ${esc(x.party.name)} included.</strong>
+      </div>`).join("")}
+    </div>`:""}
+
+    ${conflicts.length?`<div class="relationshipConflictBoard">
+      ${conflicts.map(x=>`<div class="relationshipConflictCard">
+        <div class="relationshipVs"><span>${esc(x.a.name)}</span><strong>VS</strong><span>${esc(x.b.name)}</span></div>
+        <p>These parties have an absolute coalition veto in this workshop scenario.</p>
+      </div>`).join("")}
+    </div>`:""}
+
+    ${blocked
+      ? `<div class="callout danger"><h2>Coalition cannot currently form</h2><p>One or more hard coalition rules have been triggered. Return to the coalition and find another route to 61.</p><button class="dangerBtn hugeBtn" id="relationshipBackBuild">Return to coalition</button></div>`
+      : `<div class="callout success"><h2>Relationship test passed</h2><p>Your selected parties have passed the coalition participation and party relationship tests. You can now reveal the leadership question.</p><button class="secondary hugeBtn" id="relationshipContinue">Continue to leadership</button></div>`
     }`;
 }
 
 function workshopRelationshipStage(){
+  const eligibility=coalitionEligibilityConflicts();
   const conflicts=relationshipConflicts();
+  const blocked=eligibility.length>0 || conflicts.length>0;
   return `
     <section class="workshopLeadershipHero">
       <div class="audiencePrompt lightPrompt">COALITION REALITY CHECK</div>
       <h2>Will these parties actually govern together?</h2>
-      <p>The audience has already built a majority and negotiated the policy issues. Now reveal any direct party to party vetoes.</p>
+      <p>The audience has already built a majority and negotiated the policy issues. Now reveal hard coalition participation rules and direct party vetoes.</p>
     </section>
 
-    ${conflicts.length
-      ? `<div class="workshopConflictGrid">
-          ${conflicts.map(x=>`<div class="workshopConflictCard">
-            <div class="workshopConflictNames"><strong>${esc(x.a.name)}</strong><span>will not sit with</span><strong>${esc(x.b.name)}</strong></div>
-          </div>`).join("")}
-        </div>
-        <div class="classAction"><button class="dangerBtn hugeBtn" id="relationshipBackBuild">Audience must rebuild the coalition</button></div>`
-      : `<div class="callout success"><h2>No direct party vetoes</h2><p>The coalition has survived the relationship test. Move to the final leadership reveal.</p></div>
-        <div class="classAction"><button class="secondary hugeBtn" id="relationshipContinue">Continue to final reveal</button></div>`
+    ${eligibility.length?`<div class="coalitionEligibilityBoard workshopEligibility">
+      ${eligibility.map(x=>`<div class="coalitionEligibilityCard">
+        <div class="eligibilityStamp">COALITION PARTICIPATION RED LINE</div>
+        <h3>${esc(x.party.name)}</h3>
+        <p>${esc(x.reason)}</p>
+        <strong>This coalition cannot form while ${esc(x.party.name)} remains included.</strong>
+      </div>`).join("")}
+    </div>`:""}
+
+    ${conflicts.length?`<div class="workshopConflictGrid">
+      ${conflicts.map(x=>`<div class="workshopConflictCard">
+        <div class="workshopConflictNames"><strong>${esc(x.a.name)}</strong><span>will not sit with</span><strong>${esc(x.b.name)}</strong></div>
+      </div>`).join("")}
+    </div>`:""}
+
+    ${blocked
+      ? `<div class="classAction"><button class="dangerBtn hugeBtn" id="relationshipBackBuild">Audience must rebuild the coalition</button></div>`
+      : `<div class="callout success"><h2>Coalition relationship test passed</h2><p>No hard coalition participation rule or direct party veto has been triggered.</p></div>
+         <div class="classAction"><button class="secondary hugeBtn" id="relationshipContinue">Continue to final reveal</button></div>`
     }`;
 }
 
@@ -415,21 +450,33 @@ function policyPanel(){
 function leadershipPanel(){return classroomLeadershipStage()}
 
 function individualRelationshipStage(){
+  const eligibility=coalitionEligibilityConflicts();
   const conflicts=relationshipConflicts();
+  const blocked=eligibility.length>0 || conflicts.length>0;
   return `<section class="analysisSection" id="relationshipSection">
     <div class="stageLabel">Stage three</div>
     <h2>Party relationship check</h2>
-    <p class="analysisIntro">Only now do you discover whether any selected parties have ruled out governing together.</p>
+    <p class="analysisIntro">Only now do you discover whether every selected party can actually enter the governing coalition.</p>
 
-    ${conflicts.length
-      ? `<div class="relationshipConflictBoard">
-          ${conflicts.map(x=>`<div class="relationshipConflictCard">
-            <div class="relationshipVs"><span>${esc(x.a.name)}</span><strong>VS</strong><span>${esc(x.b.name)}</span></div>
-            <p>These parties have an absolute coalition veto in this scenario.</p>
-          </div>`).join("")}
-        </div>
-        <div class="callout danger"><h2>Your coalition has hit a party veto</h2><p>Return to the coalition and decide which party should leave.</p><button class="dangerBtn" id="relationshipBackBuild">Return to coalition</button></div>`
-      : `<div class="callout success"><h2>Relationship test passed</h2><p>No selected parties have an absolute veto against one another. Continue to the leadership question.</p><button class="secondary" id="relationshipContinue">Continue to leadership</button></div>`
+    ${eligibility.length?`<div class="coalitionEligibilityBoard">
+      ${eligibility.map(x=>`<div class="coalitionEligibilityCard">
+        <div class="eligibilityStamp">COALITION PARTICIPATION RED LINE</div>
+        <h3>${esc(x.party.name)}</h3>
+        <p>${esc(x.reason)}</p>
+        <strong>Your coalition cannot form with ${esc(x.party.name)} included.</strong>
+      </div>`).join("")}
+    </div>`:""}
+
+    ${conflicts.length?`<div class="relationshipConflictBoard">
+      ${conflicts.map(x=>`<div class="relationshipConflictCard">
+        <div class="relationshipVs"><span>${esc(x.a.name)}</span><strong>VS</strong><span>${esc(x.b.name)}</span></div>
+        <p>These parties have an absolute coalition veto in this scenario.</p>
+      </div>`).join("")}
+    </div>`:""}
+
+    ${blocked
+      ? `<div class="callout danger"><h2>Your coalition has hit a hard rule</h2><p>Return to coalition building and find another route to 61.</p><button class="dangerBtn" id="relationshipBackBuild">Return to coalition</button></div>`
+      : `<div class="callout success"><h2>Relationship test passed</h2><p>All selected parties can proceed to the leadership stage.</p><button class="secondary" id="relationshipContinue">Continue to leadership</button></div>`
     }
   </section>`;
 }
