@@ -574,3 +574,64 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 @media(max-width:700px){
   .relationshipConflictBoard,.workshopConflictGrid{grid-template-columns:1fr}
 }
+
+
+/* Mobile portrait header fix */
+@media (max-width: 600px) and (orientation: portrait) {
+  .topbar{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:10px;
+    align-items:stretch;
+    margin-bottom:14px;
+  }
+
+  .brand{
+    display:grid;
+    grid-template-columns:120px minmax(0,1fr);
+    gap:11px;
+    align-items:center;
+    width:100%;
+  }
+
+  .brand img{
+    width:120px;
+    max-width:100%;
+    max-height:44px;
+    object-fit:contain;
+  }
+
+  .brandText{
+    min-width:0;
+    line-height:1.15;
+  }
+
+  .brandText span{
+    display:block;
+    font-size:1rem;
+    line-height:1.12;
+    white-space:normal;
+    overflow-wrap:normal;
+    word-break:normal;
+  }
+
+  .brandText small{
+    display:block;
+    margin-top:4px;
+    font-size:.72rem;
+    line-height:1.15;
+  }
+
+  .topActions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    width:100%;
+  }
+
+  .topActions .ghost{
+    width:100%;
+    padding:10px 12px;
+    font-size:.82rem;
+  }
+}
