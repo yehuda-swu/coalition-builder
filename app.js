@@ -384,7 +384,34 @@ function coalitionPanel(){
   const action=total>=majority&&state.classStep==="build"?`<div class="callout success"><h2>Majority reached</h2><p>You have ${total} seats. Now test the coalition against policy red lines.</p><button class="secondary" id="policyStart">Begin policy negotiations</button></div>`:"";
   return `<section class="coalitionBox"><div class="sectionHead"><div><h2>Your coalition</h2><p>Selected parties and seats</p></div></div>${rows}</section>${action}`;
 }
-function policyPanel(){return `<section class="analysisSection" id="policySection"><div class="stageLabel">Stage two</div><h2>Policy negotiations</h2><div class="issueStack">${policyAnalysis().map(i=>classIssueBlock(i)).join("")}</div></section>`}
+function policyPanel(){
+  const hard=hardPolicyConflicts();
+  return `<section class="analysisSection" id="policySection">
+    <div class="stageLabel">Stage two</div>
+    <h2>Policy negotiations</h2>
+    <p class="analysisIntro">Some disagreements are negotiable. Opposing red lines are not.</p>
+
+    ${hard.length?`<div class="redLineAlert">
+      <div class="redLineIcon">!</div>
+      <div>
+        <strong>${hard.length} policy red line conflict${hard.length===1?"":"s"}</strong>
+        <span>You must change the coalition before continuing.</span>
+      </div>
+    </div>`:""}
+
+    <div class="issueStack">${policyAnalysis().map(i=>classIssueBlock(i)).join("")}</div>
+
+    <div class="callout ${hard.length?"danger":"warn"}">
+      <h2>${hard.length?"Coalition blocked by red lines":"Ready to continue?"}</h2>
+      <p>${hard.length?"Remove or replace a party to resolve the automatic red line conflict.":"Resolve every negotiable disagreement before moving to the party relationship check."}</p>
+      ${hard.length
+        ? `<button class="dangerBtn" id="returnBuild">Return to coalition</button>`
+        : `<button class="secondary" id="continueRelationships" ${unresolvedNegotiations().length?'disabled style="opacity:.45;cursor:not-allowed"':""}>Continue to party relationships</button>`
+      }
+    </div>
+  </section>`;
+}
+
 function leadershipPanel(){return classroomLeadershipStage()}
 
 function individualRelationshipStage(){
@@ -449,6 +476,15 @@ function bindSharedEvents(){
 
   const ps=document.getElementById("policyStart");
   if(ps) ps.addEventListener("click",()=>{state.classStep="policy";render();});
+  const returnBuild=document.getElementById("returnBuild");
+  if(returnBuild) returnBuild.addEventListener("click",()=>{state.classStep="build";render();window.scrollTo({top:0,behavior:"smooth"});});
+  const continueRelationships=document.getElementById("continueRelationships");
+  if(continueRelationships) continueRelationships.addEventListener("click",()=>{
+    if(failedNegotiations().length){state.stage="report";render();return;}
+    state.classStep="relationships";
+    render();
+    setTimeout(()=>document.getElementById("relationshipSection")?.scrollIntoView({behavior:"smooth"}),50);
+  });
   const cps=document.getElementById("classPolicyStart");
   if(cps) cps.addEventListener("click",()=>{state.classStep="policy";render();});
   const cb=document.getElementById("classBackBuild");
