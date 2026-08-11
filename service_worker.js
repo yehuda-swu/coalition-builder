@@ -1,4 +1,4 @@
-const CACHE='61_build_the_coalition_v4_5_n12_i24_kan';
+const CACHE='61_master_current_2026_08_11';
 const ASSETS=[
   './',
   'index.html',

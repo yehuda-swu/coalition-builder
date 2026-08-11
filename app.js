@@ -1,5 +1,5 @@
 
-const {parties,sectors,issues,majority} = window.GAME_DATA;
+const {parties,sectors,issues,majority,electionMeta} = window.GAME_DATA;
 
 const state = {
   selected:new Set(),
@@ -12,7 +12,8 @@ const state = {
 
 const app=document.getElementById("app");
 
-function chosen(){return parties.filter(p=>state.selected.has(p.id))}
+function activeParties(){return parties.filter(p=>p.active!==false)}
+function chosen(){return activeParties().filter(p=>state.selected.has(p.id))}
 
 function hasJointArabList(){
   return state.selected.has("joint_arab_list");
@@ -219,15 +220,61 @@ function commonTopbar(label){
   </header>`;
 }
 
+
+
+function instructionsPanel(){
+  return `<section class="quickInstructions">
+    <strong>How to play</strong>
+    <span>Build a coalition of at least 61 seats. Then test it through policy negotiations, party relationships and the leadership question. If talks collapse, return to the Knesset and try again.</span>
+  </section>`;
+}
+
+function pollingSnapshotPanel(){
+  const seat=electionMeta?.seatPoll;
+  const pm=electionMeta?.preferredPM;
+  const comparisons=(pm?.comparisons||[]).map(c=>`
+    <div class="pmComparison">
+      <div class="pmNames">
+        <span>${esc(c.left)} <strong>${c.leftValue}%</strong></span>
+        <span>${esc(c.right)} <strong>${c.rightValue}%</strong></span>
+      </div>
+      <div class="pmBars">
+        <div class="pmBar"><i style="width:${c.leftValue}%"></i></div>
+        <div class="pmBar alt"><i style="width:${c.rightValue}%"></i></div>
+      </div>
+    </div>
+  `).join("");
+
+  return `<section class="pollingStrip">
+    <div class="seatPollMeta">
+      <div class="pollEyebrow">61 Poll of Polls</div>
+      <strong>${esc(seat?.label||"Polling scenario")}</strong>
+      <span>${esc(seat?.date||"")} · ${esc(seat?.source||"")}</span>
+      <small>${esc(seat?.note||"")}</small>
+    </div>
+    <div class="pmPollArea">
+      <div class="pmPollHead">
+        <strong>Preferred Prime Minister</strong>
+        <span>${esc(pm?.source||"")} · ${esc(pm?.date||"")}</span>
+      </div>
+      <div class="pmComparisonGrid">${comparisons}</div>
+      <small class="pmPollNote">${esc(pm?.note||"")}</small>
+    </div>
+  </section>`;
+}
+
 function renderIndividual(){
-  const total=totalSeats(),filtered=state.sector==="All"?parties:parties.filter(p=>p.sector===state.sector),progress=Math.min(100,total/majority*100);
+  const total=totalSeats(),filtered=state.sector==="All"?activeParties():activeParties().filter(p=>p.sector===state.sector),progress=Math.min(100,total/majority*100);
   app.innerHTML=`<div class="app"><div class="shell">
     ${commonTopbar("Individual Mode")}
+    ${instructionsPanel()}
+    ${pollingSnapshotPanel()}
     ${dashboard(total,progress)}
     ${relationshipAlert()}
     <section><div class="sectionHead"><div><h2>Political sectors</h2><p>Explore the parties and invite them into your coalition.</p></div></div>${sectorButtons()}</section>
     <section><div class="sectionHead"><div><h2>${state.sector==="All"?"All parties":esc(state.sector)}</h2><p>${filtered.length} ${filtered.length===1?"party":"parties"} in view</p></div></div><div class="partyGrid">${filtered.map(p=>partyCard(p)).join("")}</div></section>
     ${coalitionPanel()}
+    ${state.classStep==="summary"?coalitionSummaryPanel():""}
     ${state.classStep==="policy"?policyPanel(false):""}
     ${state.classStep==="relationships"?individualRelationshipStage():""}
     ${state.classStep==="leadership"?leadershipPanel(false):""}
@@ -240,9 +287,12 @@ function renderClassroom(){
   const total=totalSeats(),progress=Math.min(100,total/majority*100);
   app.innerHTML=`<div class="app classroomApp"><div class="shell classroomShell">
     ${commonTopbar("Classroom Mode")}
+    ${instructionsPanel()}
+    ${pollingSnapshotPanel()}
     ${classroomStageHeader()}
     ${dashboard(total,progress)}
     ${state.classStep==="build"?classroomBuildStage():""}
+    ${state.classStep==="summary"?coalitionSummaryPanel():""}
     ${state.classStep==="policy"?classroomPolicyStage():""}
     ${state.classStep==="relationships"?classroomRelationshipStage():""}
     ${state.classStep==="leadership"?classroomLeadershipStage():""}
@@ -255,9 +305,12 @@ function renderWorkshop(){
   const total=totalSeats(),progress=Math.min(100,total/majority*100);
   app.innerHTML=`<div class="app workshopApp"><div class="shell workshopShell">
     ${commonTopbar("Workshop Mode")}
+    ${instructionsPanel()}
+    ${pollingSnapshotPanel()}
     ${workshopStageHeader()}
     ${dashboard(total,progress)}
     ${state.classStep==="build"?workshopBuildStage():""}
+    ${state.classStep==="summary"?coalitionSummaryPanel():""}
     ${state.classStep==="policy"?workshopPolicyStage():""}
     ${state.classStep==="relationships"?workshopRelationshipStage():""}
     ${state.classStep==="leadership"?workshopLeadershipStage():""}
@@ -268,6 +321,7 @@ function renderWorkshop(){
 function workshopStageHeader(){
   const map={
     build:["Audience Challenge","Build a majority","Ask the audience which party should join next. Record the winning choice on screen."],
+    summary:["Majority Reached","Your proposed government","Review the audience coalition before negotiations begin."],
     policy:["Audience Negotiation","Can they compromise?","Invite arguments from the room, then record the audience decision."],
     relationships:["Coalition Reality Check","Will these parties actually govern together?","Reveal party to party vetoes only after the audience has built and negotiated the coalition."],
     leadership:["Final Reveal","Who can lead the government?","Reveal each party's Netanyahu position and see whether the coalition survives."]
@@ -280,13 +334,13 @@ function workshopBuildStage(){
   const total=totalSeats();
   return `
     <section class="workshopPartyBoard">
-      ${parties.map(p=>workshopPartyTile(p)).join("")}
+      ${activeParties().map(p=>workshopPartyTile(p)).join("")}
     </section>
     <section class="workshopCoalitionBanner">
       <div><span>Current coalition</span><strong>${chosen().length?chosen().map(p=>esc(p.name)).join(" · "):"No parties selected yet"}</strong></div>
       <div class="workshopScore">${total}<small>/ ${majority}</small></div>
     </section>
-    ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="classPolicyStart">Put this coalition to the test</button></div>`:""}`;
+    ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:""}`;
 }
 
 function workshopPartyTile(p){
@@ -349,6 +403,7 @@ function workshopLeadershipStage(){
 function classroomStageHeader(){
   const map={
     build:["Stage One","Build a majority","Choose parties together until the class reaches at least 61 seats."],
+    summary:["Majority Reached","Review your proposed government","You have the numbers. Review the coalition before negotiations begin."],
     policy:["Stage Two","Negotiate the policy differences","Discuss each issue as a class and decide what the parties would do."],
     relationships:["Stage Three","Test the party relationships","Now reveal whether any selected parties have ruled out governing together."],
     leadership:["Final Stage","Resolve the leadership question","Can these parties agree on Benjamin Netanyahu?"]
@@ -362,13 +417,13 @@ function classroomBuildStage(){
   return `
   ${relationshipAlert()}
   <section class="classPartySection">
-    <div class="classPartyGrid">${parties.map(p=>classPartyTile(p)).join("")}</div>
+    <div class="classPartyGrid">${activeParties().map(p=>classPartyTile(p)).join("")}</div>
   </section>
   <section class="classCoalitionPanel">
     <div><h2>Current coalition</h2><p>${chosen().length?chosen().map(p=>esc(p.name)).join(" · "):"No parties selected yet"}</p></div>
     <strong>${total} / ${majority}</strong>
   </section>
-  ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="classPolicyStart">Begin negotiations</button></div>`:""}`;
+  ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:""}`;
 }
 
 function classroomPolicyStage(){
@@ -517,9 +572,51 @@ function classPartyTile(p){
     <div class="classSeatCount">${p.seats}</div>
   </button>`;
 }
+
+function coalitionSummaryPanel(){
+  const c=chosen();
+  const total=totalSeats();
+  const largest=[...c].sort((a,b)=>b.seats-a.seats)[0];
+  const margin=Math.max(0,total-majority);
+
+  return `<section class="coalitionSummaryScreen" id="coalitionSummaryScreen">
+    <div class="summaryEyebrow">Your proposed government</div>
+    <h2>${total} seats</h2>
+    <p class="summaryIntro">You have the numbers. Review your proposed government before negotiations begin.</p>
+
+    <div class="summaryMetrics">
+      <div><strong>${c.length}</strong><span>parties</span></div>
+      <div><strong>${largest?esc(largest.name):""}</strong><span>largest party</span></div>
+      <div><strong>+${margin}</strong><span>majority margin</span></div>
+      <div><strong>${total}</strong><span>total seats</span></div>
+    </div>
+
+    <div class="summaryLeaderGrid">
+      ${c.map(p=>`<article class="summaryLeaderCard" style="--sector:${sectorColour(p.sector)}">
+        <img src="${p.photo}" alt="${esc(p.leader)}">
+        <div>
+          <strong>${esc(p.name)}</strong>
+          <span>${esc(p.leader)}</span>
+          <small>${p.seats} seats</small>
+        </div>
+      </article>`).join("")}
+    </div>
+
+    <div class="summarySuspense">
+      <strong>You have a majority. But can it survive?</strong>
+      <span>Compatibility is not revealed until negotiations begin.</span>
+    </div>
+
+    <div class="summaryActions">
+      <button class="ghost" id="summaryBack">Change coalition</button>
+      <button class="secondary hugeBtn" id="summaryPolicyStart">Begin coalition negotiations</button>
+    </div>
+  </section>`;
+}
+
 function coalitionPanel(){
   const total=totalSeats(),rows=chosen().length?chosen().map(p=>`<div class="coalitionRow"><span><i style="background:${sectorColour(p.sector)}"></i>${esc(p.name)}</span><strong>${p.seats}</strong></div>`).join(""):`<div class="empty">No parties selected yet.</div>`;
-  const action=total>=majority&&state.classStep==="build"?`<div class="callout success"><h2>Majority reached</h2><p>You have ${total} seats. Now test the coalition against policy red lines.</p><button class="secondary" id="policyStart">Begin policy negotiations</button></div>`:"";
+  const action=total>=majority&&state.classStep==="build"?`<div class="callout success"><h2>Majority reached</h2><p>You have ${total} seats. Review your proposed government before negotiations begin.</p><button class="secondary" id="summaryStart">Review proposed government</button></div>`:"";
   return `<section class="coalitionBox"><div class="sectionHead"><div><h2>Your coalition</h2><p>Selected parties and seats</p></div></div>${rows}</section>${action}`;
 }
 function policyPanel(){
@@ -600,7 +697,7 @@ function knessetVisual(){
   const colours=[];chosen().forEach(p=>{for(let i=0;i<p.seats;i++) colours.push(sectorColour(p.sector));});
   const seats=[],rows=[24,22,20,18,16,12,8],radii=[172,151,130,109,88,67,46],cx=210,cy=196;
   rows.forEach((count,row)=>{const start=Math.PI*1.08,end=Math.PI*1.92,r=radii[row];for(let i=0;i<count;i++){const t=count===1?.5:i/(count-1),a=start+(end-start)*t,x=cx+Math.cos(a)*r,y=cy+Math.sin(a)*r;seats.push(`<circle class="kSeat" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.2" fill="${colours[seats.length]||"#dce5ed"}"></circle>`);}});
-  return `<div class="knessetWrap"><svg viewBox="0 0 420 215"><path d="M35 195 Q210 15 385 195" fill="none" stroke="#d8e3ec" stroke-width="1.5"></path>${seats.join("")}<line x1="210" y1="198" x2="210" y2="172" stroke="#c99a2e" stroke-width="3"></line><text x="210" y="211" text-anchor="middle" class="majorityMarker">${majority}</text></svg><div class="knessetCaption">120 seat Knesset</div></div>`;
+  return `<div class="knessetWrap"><svg viewBox="0 0 420 215">${seats.join("")}<line x1="210" y1="198" x2="210" y2="172" stroke="#c99a2e" stroke-width="3"></line><text x="210" y="211" text-anchor="middle" class="majorityMarker">${majority}</text></svg><div class="knessetCaption">120 seat Knesset</div></div>`;
 }
 
 function renderReport(){
@@ -632,8 +729,23 @@ function bindSharedEvents(){
   }));
   document.querySelectorAll("[data-policy]").forEach(b=>b.addEventListener("click",()=>{state.policyDecisions[b.dataset.policy]=b.dataset.decision;render();}));
 
-  const ps=document.getElementById("policyStart");
-  if(ps) ps.addEventListener("click",()=>{state.classStep="policy";render();});
+  const summaryStart=document.getElementById("summaryStart");
+  if(summaryStart) summaryStart.addEventListener("click",()=>{
+    state.classStep="summary";
+    render();
+    setTimeout(()=>document.getElementById("coalitionSummaryScreen")?.scrollIntoView({behavior:"smooth"}),50);
+  });
+  const summaryBack=document.getElementById("summaryBack");
+  if(summaryBack) summaryBack.addEventListener("click",()=>{
+    state.classStep="build";
+    render();
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+  const summaryPolicyStart=document.getElementById("summaryPolicyStart");
+  if(summaryPolicyStart) summaryPolicyStart.addEventListener("click",()=>{
+    state.classStep="policy";
+    render();
+  });
   const returnBuild=document.getElementById("returnBuild");
   if(returnBuild) returnBuild.addEventListener("click",()=>{state.classStep="build";render();window.scrollTo({top:0,behavior:"smooth"});});
   const continueRelationships=document.getElementById("continueRelationships");
@@ -643,8 +755,6 @@ function bindSharedEvents(){
     render();
     setTimeout(()=>document.getElementById("relationshipSection")?.scrollIntoView({behavior:"smooth"}),50);
   });
-  const cps=document.getElementById("classPolicyStart");
-  if(cps) cps.addEventListener("click",()=>{state.classStep="policy";render();});
   const cb=document.getElementById("classBackBuild");
   if(cb) cb.addEventListener("click",()=>{state.classStep="build";render();});
   const relBack=document.getElementById("relationshipBackBuild");
