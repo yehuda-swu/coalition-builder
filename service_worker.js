@@ -1,5 +1,13 @@
-const CACHE='61_stable_jal_global_block_v1';
-const ASSETS=['./','index.html','styles.css','app.js','manifest.json','data/game_data.js'];
+const CACHE='61_build_the_coalition_v4_5_n12_i24_kan';
+const ASSETS=[
+  './',
+  'index.html',
+  'styles.css',
+  'app.js',
+  'manifest.json',
+  'data/game_data.js',
+  'data/election_updates.js'
+];
 
 self.addEventListener('install',event=>{
   self.skipWaiting();
@@ -7,12 +15,12 @@ self.addEventListener('install',event=>{
 });
 
 self.addEventListener('activate',event=>{
-  event.waitUntil(
-    Promise.all([
-      self.clients.claim(),
-      caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
-    ])
-  );
+  event.waitUntil(Promise.all([
+    self.clients.claim(),
+    caches.keys().then(keys=>Promise.all(
+      keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))
+    ))
+  ]));
 });
 
 self.addEventListener('fetch',event=>{
