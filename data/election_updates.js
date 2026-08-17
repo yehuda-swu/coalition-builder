@@ -30,7 +30,7 @@ window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "11 August 2026",
+    updated: "17 August 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Genuine party averages are converted into exactly 120 whole seats using the largest remainder method.",
     sources: [
       {
@@ -75,19 +75,19 @@ window.ELECTION_UPDATES = {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
-        date: "9 August 2026",
+        date: "17 August 2026",
         seats: {
-          likud: 24,
+          likud: 23,
           yashar: 23,
-          byachad: 13,
+          byachad: 14,
           democrats: 10,
           yisrael_beitenu: 10,
-          shas: 8,
-          otzma_yehudit: 8,
+          shas: 7,
+          otzma_yehudit: 10,
           utj: 8,
-          joint_arab_list: 5,
-          raam: 6,
-          hatzionut_hadati: 5
+          joint_arab_list: 6,
+          raam: 5,
+          hatzionut_hadati: 4
         }
       }
     ]
@@ -257,7 +257,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "4.3";
+  game.electionMeta.dataVersion = "4.6";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
