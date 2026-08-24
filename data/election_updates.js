@@ -30,7 +30,7 @@ window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "19 August 2026",
+    updated: "24 August 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Genuine party averages are converted into exactly 120 whole seats using the largest remainder method.",
     sources: [
       {
@@ -56,17 +56,17 @@ window.ELECTION_UPDATES = {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "6 August 2026",
+        date: "18 August 2026",
         seats: {
-          likud: 28,
-          yashar: 23,
-          byachad: 7,
-          democrats: 10,
-          yisrael_beitenu: 9,
+          likud: 31,
+          yashar: 24,
+          byachad: 9,
+          democrats: 11,
+          yisrael_beitenu: 8,
           shas: 8,
-          otzma_yehudit: 8,
-          utj: 9,
-          joint_arab_list: 8,
+          otzma_yehudit: 6,
+          utj: 8,
+          joint_arab_list: 5,
           raam: 5,
           hatzionut_hadati: 5
         }
@@ -75,19 +75,19 @@ window.ELECTION_UPDATES = {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
-        date: "17 August 2026",
+        date: "23 August 2026",
         seats: {
-          likud: 23,
-          yashar: 23,
+          likud: 22,
+          yashar: 24,
           byachad: 14,
           democrats: 10,
-          yisrael_beitenu: 10,
+          yisrael_beitenu: 9,
           shas: 7,
-          otzma_yehudit: 10,
+          otzma_yehudit: 9,
           utj: 8,
-          joint_arab_list: 6,
+          joint_arab_list: 7,
           raam: 5,
-          hatzionut_hadati: 4
+          hatzionut_hadati: 5
         }
       }
     ]
@@ -108,27 +108,12 @@ window.ELECTION_UPDATES = {
   },
 
   preferredPM: {
-    date: "10 August 2026",
-    source: "KAN News",
+    date: "23 August 2026",
+    source: "KAN 11 / Kantar",
     comparisons: [
-      {
-        left: "Benjamin Netanyahu",
-        leftValue: 41,
-        right: "Gadi Eisenkot",
-        rightValue: 34
-      },
-      {
-        left: "Benjamin Netanyahu",
-        leftValue: 41,
-        right: "Naftali Bennett",
-        rightValue: 31
-      },
-      {
-        left: "Gadi Eisenkot",
-        leftValue: 31,
-        right: "Naftali Bennett",
-        rightValue: 20
-      }
+      { left: "Gadi Eisenkot", leftValue: 41, right: "Benjamin Netanyahu", rightValue: 35 },
+      { left: "Naftali Bennett", leftValue: 37, right: "Benjamin Netanyahu", rightValue: 35 },
+      { left: "Gadi Eisenkot", leftValue: 38, right: "Naftali Bennett", rightValue: 21 }
     ]
   }
 };
@@ -257,7 +242,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "4.7";
+  game.electionMeta.dataVersion = "4.8";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
