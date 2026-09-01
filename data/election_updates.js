@@ -30,64 +30,67 @@ window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "24 August 2026",
+    updated: "1 September 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Genuine party averages are converted into exactly 120 whole seats using the largest remainder method.",
     sources: [
       {
         id: "channel12",
         name: "N12 / Channel 12",
         pollster: "Midgam",
-        date: "19 August 2026",
+        date: "31 August 2026",
         seats: {
-          likud: 22,
+          likud: 23,
           yashar: 24,
           byachad: 15,
           democrats: 11,
-          yisrael_beitenu: 10,
+          yisrael_beitenu: 9,
           shas: 7,
           otzma_yehudit: 8,
           utj: 8,
-          joint_arab_list: 5,
-          raam: 5,
-          hatzionut_hadati: 5
+          joint_arab_list: 7,
+          raam: 4,
+          hatzionut_hadati: 0,
+          amcha_yisrael: 4
         }
       },
       {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "18 August 2026",
+        date: "26 August 2026",
         seats: {
-          likud: 31,
-          yashar: 24,
-          byachad: 9,
-          democrats: 11,
+          likud: 26,
+          yashar: 23,
+          byachad: 8,
+          democrats: 10,
           yisrael_beitenu: 8,
-          shas: 8,
+          shas: 7,
           otzma_yehudit: 6,
           utj: 8,
-          joint_arab_list: 5,
-          raam: 5,
-          hatzionut_hadati: 5
+          joint_arab_list: 6,
+          raam: 6,
+          hatzionut_hadati: 4,
+          amcha_yisrael: 8
         }
       },
       {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
-        date: "23 August 2026",
+        date: "30 August 2026",
         seats: {
-          likud: 22,
+          likud: 21,
           yashar: 24,
           byachad: 14,
-          democrats: 10,
-          yisrael_beitenu: 9,
+          democrats: 9,
+          yisrael_beitenu: 8,
           shas: 7,
-          otzma_yehudit: 9,
+          otzma_yehudit: 7,
           utj: 8,
-          joint_arab_list: 7,
+          joint_arab_list: 8,
           raam: 5,
-          hatzionut_hadati: 5
+          hatzionut_hadati: 5,
+          amcha_yisrael: 4
         }
       }
     ]
@@ -104,7 +107,8 @@ window.ELECTION_UPDATES = {
     utj: true,
     shas: true,
     joint_arab_list: true,
-    raam: true
+    raam: true,
+    amcha_yisrael: true
   },
 
   preferredPM: {
@@ -242,7 +246,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "4.8";
+  game.electionMeta.dataVersion = "5.0";
 
   game.electionMeta.seatPoll = {
     label: pop.label,

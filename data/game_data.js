@@ -66,7 +66,7 @@ window.GAME_DATA = {
         arab:{stance:"Oppose",strength:"Flexible"},
         charedi:{stance:"Support",strength:"Red line"}
       },
-      veto:["otzma_yehudit","hatzionut_hadati"]
+      veto:["otzma_yehudit","hatzionut_hadati","amcha_yisrael"]
     },
     {
       id:"byachad", active:true, name:"B'Yachad", leader:"Naftali Bennett", seats:16, sector:"Right",
@@ -106,6 +106,19 @@ window.GAME_DATA = {
         charedi:{stance:"Support",strength:"Red line"}
       },
       veto:["utj","shas"]
+    },
+    {
+      id:"amcha_yisrael", active:true, name:"Amcha Yisrael", leader:"Ofer Winter", seats:5, sector:"Right",
+      logo:"assets/logos/amcha_yisrael.png", photo:"assets/leaders/ofer_winter.png",
+      leadership:"Requires Netanyahu",
+      positions:{
+        security:{stance:"Support",strength:"Red line"},
+        inquiry:{stance:"Flexible",strength:"Flexible"},
+        judicial:{stance:"Support",strength:"Flexible"},
+        arab:{stance:"Oppose",strength:"Red line"},
+        charedi:{stance:"Support",strength:"Red line"}
+      },
+      veto:["yashar","joint_arab_list"]
     },
     {
       id:"hatzionut_hadati", active:true, name:"Hatzionut HaDatit", leader:"Bezalel Smotrich", seats:4, sector:"Far Right",
@@ -172,7 +185,7 @@ window.GAME_DATA = {
         arab:{stance:"Support",strength:"Absolute Red Line"},
         charedi:{stance:"Flexible",strength:"Flexible"}
       },
-      veto:["likud","otzma_yehudit","hatzionut_hadati"]
+      veto:["likud","otzma_yehudit","hatzionut_hadati","amcha_yisrael"]
     },
     {
       id:"raam", active:true, name:"Ra'am", leader:"Mansour Abbas", seats:5, sector:"Arab",
