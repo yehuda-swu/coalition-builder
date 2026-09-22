@@ -30,26 +30,26 @@ window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "1 September 2026",
-    methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Genuine party averages are converted into exactly 120 whole seats using the largest remainder method.",
+    updated: "22 September 2026",
+    methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sources: [
       {
         id: "channel12",
         name: "N12 / Channel 12",
         pollster: "Midgam",
-        date: "31 August 2026",
+        date: "14 September 2026",
         seats: {
-          likud: 23,
-          yashar: 24,
-          byachad: 15,
-          democrats: 11,
-          yisrael_beitenu: 9,
+          likud: 20,
+          yashar: 23,
+          byachad: 13,
+          democrats: 10,
+          yisrael_beitenu: 8,
           shas: 7,
-          otzma_yehudit: 8,
+          otzma_yehudit: 6,
           utj: 8,
-          joint_arab_list: 7,
+          joint_arab_list: 8,
           raam: 4,
-          hatzionut_hadati: 0,
+          hatzionut_hadati: 5,
           amcha_yisrael: 4
         }
       },
@@ -57,39 +57,39 @@ window.ELECTION_UPDATES = {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "26 August 2026",
+        date: "17 September 2026",
         seats: {
-          likud: 26,
-          yashar: 23,
-          byachad: 8,
+          likud: 27,
+          yashar: 21,
+          byachad: 9,
           democrats: 10,
           yisrael_beitenu: 8,
           shas: 7,
-          otzma_yehudit: 6,
+          otzma_yehudit: 7,
           utj: 8,
-          joint_arab_list: 6,
-          raam: 6,
-          hatzionut_hadati: 4,
-          amcha_yisrael: 8
+          joint_arab_list: 7,
+          raam: 5,
+          hatzionut_hadati: 6,
+          amcha_yisrael: 5
         }
       },
       {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
-        date: "30 August 2026",
+        date: "14 September 2026",
         seats: {
-          likud: 21,
+          likud: 20,
           yashar: 24,
-          byachad: 14,
-          democrats: 9,
+          byachad: 12,
+          democrats: 8,
           yisrael_beitenu: 8,
           shas: 7,
-          otzma_yehudit: 7,
-          utj: 8,
-          joint_arab_list: 8,
+          otzma_yehudit: 8,
+          utj: 7,
+          joint_arab_list: 7,
           raam: 5,
-          hatzionut_hadati: 5,
+          hatzionut_hadati: 6,
           amcha_yisrael: 4
         }
       }
@@ -112,12 +112,12 @@ window.ELECTION_UPDATES = {
   },
 
   preferredPM: {
-    date: "23 August 2026",
-    source: "KAN 11 / Kantar",
+    date: "14 September 2026",
+    source: "N12 / Channel 12, Midgam",
     comparisons: [
-      { left: "Gadi Eisenkot", leftValue: 41, right: "Benjamin Netanyahu", rightValue: 35 },
-      { left: "Naftali Bennett", leftValue: 37, right: "Benjamin Netanyahu", rightValue: 35 },
-      { left: "Gadi Eisenkot", leftValue: 38, right: "Naftali Bennett", rightValue: 21 }
+      { left: "Gadi Eisenkot", leftValue: 42, right: "Benjamin Netanyahu", rightValue: 36 },
+      { left: "Naftali Bennett", leftValue: 40, right: "Benjamin Netanyahu", rightValue: 39 },
+      { left: "Benjamin Netanyahu", leftValue: 40, right: "Avigdor Lieberman", rightValue: 30 }
     ]
   }
 };
@@ -160,16 +160,19 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   // Step 2
-  // Give every party the whole number below its genuine average.
+  // Game threshold rule: a party averaging fewer than 4 seats is treated
+  // as below the threshold and receives 0 seats.
   const allocations = playable.map(party => {
     const average = rawAverage[party.id];
-    const floorSeats = Math.floor(average);
+    const qualifies = average >= 4;
+    const floorSeats = qualifies ? Math.floor(average) : 0;
 
     return {
       id: party.id,
       average,
+      qualifies,
       floorSeats,
-      remainder: average - floorSeats,
+      remainder: qualifies ? average - floorSeats : 0,
       finalSeats: floorSeats
     };
   });
@@ -180,57 +183,55 @@ DO NOT EDIT BELOW THIS LINE
   );
 
   // Step 3
-  // If fewer than 120 seats have been allocated, give the remaining seats
-  // to the parties with the largest decimal remainders.
+  // Redistribute the remaining seats only among parties that clear the
+  // game's 4-seat threshold, using the largest remainder method.
   if(allocated < 120){
-    const seatsToAdd = 120 - allocated;
+    let seatsToAdd = 120 - allocated;
 
-    const order = [...allocations].sort((a,b) => {
-      if(b.remainder !== a.remainder){
-        return b.remainder - a.remainder;
-      }
+    const order = allocations
+      .filter(item => item.qualifies)
+      .sort((a,b) => {
+        if(b.remainder !== a.remainder){
+          return b.remainder - a.remainder;
+        }
+        if(b.average !== a.average){
+          return b.average - a.average;
+        }
+        return a.id.localeCompare(b.id);
+      });
 
-      // Stable tie breaker: higher raw average first.
-      if(b.average !== a.average){
-        return b.average - a.average;
-      }
-
-      return a.id.localeCompare(b.id);
-    });
-
-    for(let i=0; i<seatsToAdd; i++){
-      order[i % order.length].finalSeats += 1;
+    let index = 0;
+    while(seatsToAdd > 0 && order.length){
+      order[index % order.length].finalSeats += 1;
+      seatsToAdd -= 1;
+      index += 1;
     }
   }
 
   // Step 4
-  // If the floor values themselves somehow exceed 120, remove seats from
-  // the smallest remainders first until the chamber is exactly 120.
+  // Safety check if rounding ever produces more than 120 seats.
   if(allocated > 120){
     let seatsToRemove = allocated - 120;
 
-    const order = [...allocations].sort((a,b) => {
-      if(a.remainder !== b.remainder){
-        return a.remainder - b.remainder;
-      }
-
-      if(a.average !== b.average){
-        return a.average - b.average;
-      }
-
-      return a.id.localeCompare(b.id);
-    });
+    const order = allocations
+      .filter(item => item.qualifies)
+      .sort((a,b) => {
+        if(a.remainder !== b.remainder){
+          return a.remainder - b.remainder;
+        }
+        if(a.average !== b.average){
+          return a.average - b.average;
+        }
+        return a.id.localeCompare(b.id);
+      });
 
     let index = 0;
-
     while(seatsToRemove > 0 && order.length){
       const item = order[index % order.length];
-
       if(item.finalSeats > 0){
         item.finalSeats -= 1;
         seatsToRemove -= 1;
       }
-
       index += 1;
     }
   }
@@ -246,13 +247,13 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.0";
+  game.electionMeta.dataVersion = "5.1";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
     date: pop.updated,
     source: sources.map(source => source.name).join(", "),
-    note: "Seat projections use the genuine arithmetic mean from the included polls, then allocate the final whole seats using the largest remainder method so the Knesset totals exactly 120 seats.",
+    note: "Seat projections use the arithmetic mean of the included polls. Parties averaging fewer than 4 seats are treated as below the game threshold. Their seats are removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sourceCount: sources.length
   };
 
@@ -268,7 +269,7 @@ DO NOT EDIT BELOW THIS LINE
     sources,
     rawAverage,
     finalSeats: finalById,
-    allocationMethod: "Largest remainder method"
+    allocationMethod: "4-seat game threshold, then largest remainder method"
   };
 
 })();
