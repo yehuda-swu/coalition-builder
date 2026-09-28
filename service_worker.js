@@ -1,4 +1,4 @@
-const CACHE='61_poll_2026_09_22';
+const CACHE='61_poll_2026_09_28';
 const ASSETS=[
   './',
   'index.html',
