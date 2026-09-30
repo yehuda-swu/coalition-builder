@@ -7,7 +7,8 @@ const state = {
   stage:"welcome",
   mode:null,
   policyDecisions:{},
-  classStep:"build"
+  classStep:"build",
+  minorityMode:false
 };
 
 const app=document.getElementById("app");
@@ -29,6 +30,18 @@ function coalitionEligibilityConflicts(){
 }
 
 function totalSeats(){return chosen().reduce((n,p)=>n+p.seats,0)}
+
+function minorityScenario(){
+  const total=totalSeats();
+  const raam=activeParties().find(p=>p.id==="raam");
+  const joint=activeParties().find(p=>p.id==="joint_arab_list");
+  const available=!state.selected.has("raam")&&!state.selected.has("joint_arab_list")&&total<majority;
+  const externalSupport=available?(raam?.seats||0):0;
+  const abstentions=available?(joint?.seats||0):0;
+  const yes=total+externalSupport;
+  const no=120-total-externalSupport-abstentions;
+  return {available,externalSupport,abstentions,yes,no,passes:available&&yes>no};
+}
 function sectorColour(name){return (sectors.find(s=>s.name===name)||sectors[0]).colour}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 
@@ -143,8 +156,12 @@ function coalitionReport(){
   const leadership=leadershipAnalysis();
   const reasons=[];
 
-  if(total<majority){
-    reasons.push(`The coalition has only ${total} seats and needs at least ${majority}.`);
+  const minority=minorityScenario();
+  if(total<majority && !state.minorityMode){
+    reasons.push(`The coalition has only ${total} seats and needs at least ${majority}, unless it attempts the minority government route.`);
+  }
+  if(state.minorityMode && !minority.passes){
+    reasons.push(`The minority government confidence vote would be ${minority.yes} in favour to ${minority.no} against, so it would not pass.`);
   }
 
   if(hasJointArabList()){
@@ -168,7 +185,7 @@ function coalitionReport(){
     failed,
     leadership,
     success:
-      total>=majority &&
+      (total>=majority || (state.minorityMode && minority.passes)) &&
       !hasJointArabList() &&
       eligibility.length===0 &&
       relationships.length===0 &&
@@ -225,7 +242,7 @@ function commonTopbar(label){
 function instructionsPanel(){
   return `<section class="quickInstructions">
     <strong>How to play</strong>
-    <span>Build a coalition of at least 61 seats. Then test it through policy negotiations, party relationships and the leadership question. If talks collapse, return to the Knesset and try again.</span>
+    <span>Build a coalition of at least 61 seats. If you fall short, a viable coalition may unlock an advanced minority government route. Then test the agreement through policy negotiations, party relationships and leadership.</span>
   </section>`;
 }
 
@@ -320,8 +337,8 @@ function renderWorkshop(){
 
 function workshopStageHeader(){
   const map={
-    build:["Audience Challenge","Build a majority","Ask the audience which party should join next. Record the winning choice on screen."],
-    summary:["Majority Reached","Your proposed government","Review the audience coalition before negotiations begin."],
+    build:["Audience Challenge","Build a government","Ask the audience which party should join next. Aim for 61, or discover whether a minority government route becomes possible."],
+    summary:[state.minorityMode?"Minority Route":"Majority Reached","Your proposed government",state.minorityMode?"Review the confidence vote arithmetic before negotiations begin.":"Review the audience coalition before negotiations begin."],
     policy:["Audience Negotiation","Can they compromise?","Invite arguments from the room, then record the audience decision."],
     relationships:["Coalition Reality Check","Will these parties actually govern together?","Reveal party to party vetoes only after the audience has built and negotiated the coalition."],
     leadership:["Final Reveal","Who can lead the government?","Reveal each party's Netanyahu position and see whether the coalition survives."]
@@ -340,7 +357,7 @@ function workshopBuildStage(){
       <div><span>Current coalition</span><strong>${chosen().length?chosen().map(p=>esc(p.name)).join(" · "):"No parties selected yet"}</strong></div>
       <div class="workshopScore">${total}<small>/ ${majority}</small></div>
     </section>
-    ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:""}`;
+    ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:(minorityScenario().passes?`<div class="classAction"><button class="secondary hugeBtn" id="minorityStart">Explore minority government</button></div>`:"")}`;
 }
 
 function workshopPartyTile(p){
@@ -402,8 +419,8 @@ function workshopLeadershipStage(){
 
 function classroomStageHeader(){
   const map={
-    build:["Stage One","Build a majority","Choose parties together until the class reaches at least 61 seats."],
-    summary:["Majority Reached","Review your proposed government","You have the numbers. Review the coalition before negotiations begin."],
+    build:["Stage One","Build a government","Choose parties together. Aim for 61 seats, or see whether an advanced minority government route becomes possible."],
+    summary:[state.minorityMode?"Minority Route":"Majority Reached","Review your proposed government",state.minorityMode?"Review the confidence vote arithmetic before negotiations begin.":"You have the numbers. Review the coalition before negotiations begin."],
     policy:["Stage Two","Negotiate the policy differences","Discuss each issue as a class and decide what the parties would do."],
     relationships:["Stage Three","Test the party relationships","Now reveal whether any selected parties have ruled out governing together."],
     leadership:["Final Stage","Resolve the leadership question","Can these parties agree on Benjamin Netanyahu?"]
@@ -423,7 +440,7 @@ function classroomBuildStage(){
     <div><h2>Current coalition</h2><p>${chosen().length?chosen().map(p=>esc(p.name)).join(" · "):"No parties selected yet"}</p></div>
     <strong>${total} / ${majority}</strong>
   </section>
-  ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:""}`;
+  ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:(minorityScenario().passes?`<div class="classAction"><button class="secondary hugeBtn" id="minorityStart">Explore minority government</button></div>`:"")}`;
 }
 
 function classroomPolicyStage(){
@@ -578,47 +595,42 @@ function coalitionSummaryPanel(){
   const total=totalSeats();
   const largest=[...c].sort((a,b)=>b.seats-a.seats)[0];
   const margin=Math.max(0,total-majority);
+  const m=minorityScenario();
+  const minority=state.minorityMode && total<majority;
 
   return `<section class="coalitionSummaryScreen" id="coalitionSummaryScreen">
-    <div class="summaryEyebrow">Your proposed government</div>
-    <h2>${total} seats</h2>
-    <p class="summaryIntro">You have the numbers. Review your proposed government before negotiations begin.</p>
+    <div class="summaryEyebrow">${minority?"Minority government scenario":"Your proposed government"}</div>
+    <h2>${total} coalition seats</h2>
+    <p class="summaryIntro">${minority?`Your coalition does not have 61 seats. In this advanced scenario, Ra'am remains outside government but provides ${m.externalSupport} votes of external support, while the Joint Arab List's ${m.abstentions} MKs abstain. Abstentions are not counted as votes against the government.`:"You have the numbers. Review your proposed government before negotiations begin."}</p>
 
     <div class="summaryMetrics">
-      <div><strong>${c.length}</strong><span>parties</span></div>
+      <div><strong>${c.length}</strong><span>coalition parties</span></div>
       <div><strong>${largest?esc(largest.name):""}</strong><span>largest party</span></div>
-      <div><strong>+${margin}</strong><span>majority margin</span></div>
-      <div><strong>${total}</strong><span>total seats</span></div>
+      ${minority?`<div><strong>${m.yes}</strong><span>confidence votes for</span></div><div><strong>${m.no}</strong><span>votes against</span></div>`:`<div><strong>+${margin}</strong><span>majority margin</span></div><div><strong>${total}</strong><span>total seats</span></div>`}
     </div>
 
     <div class="summaryLeaderGrid">
-      ${c.map(p=>`<article class="summaryLeaderCard" style="--sector:${sectorColour(p.sector)}">
-        <img src="${p.photo}" alt="${esc(p.leader)}">
-        <div>
-          <strong>${esc(p.name)}</strong>
-          <span>${esc(p.leader)}</span>
-          <small>${p.seats} seats</small>
-        </div>
-      </article>`).join("")}
+      ${c.map(p=>`<article class="summaryLeaderCard" style="--sector:${sectorColour(p.sector)}"><img src="${p.photo}" alt="${esc(p.leader)}"><div><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span><small>${p.seats} seats</small></div></article>`).join("")}
     </div>
 
-    <div class="summarySuspense">
-      <strong>You have a majority. But can it survive?</strong>
-      <span>Compatibility is not revealed until negotiations begin.</span>
-    </div>
-
-    <div class="summaryActions">
-      <button class="ghost" id="summaryBack">Change coalition</button>
-      <button class="secondary hugeBtn" id="summaryPolicyStart">Begin coalition negotiations</button>
-    </div>
+    ${minority?`<div class="callout ${m.passes?"success":"danger"}"><h2>${m.passes?"Confidence vote can pass":"Not enough support"}</h2><p>${m.yes} vote in favour, ${m.no} vote against, ${m.abstentions} abstain. The Joint Arab List is not part of the government and Ra'am is not a coalition member.</p></div>`:""}
+    <div class="summarySuspense"><strong>${minority?"The numbers can work. But can the coalition itself survive?":"You have a majority. But can it survive?"}</strong><span>Compatibility is not revealed until negotiations begin.</span></div>
+    <div class="summaryActions"><button class="ghost" id="summaryBack">Change coalition</button><button class="secondary hugeBtn" id="summaryPolicyStart" ${minority&&!m.passes?'disabled style="opacity:.45;cursor:not-allowed"':""}>Begin coalition negotiations</button></div>
   </section>`;
 }
 
 function coalitionPanel(){
   const total=totalSeats(),rows=chosen().length?chosen().map(p=>`<div class="coalitionRow"><span><i style="background:${sectorColour(p.sector)}"></i>${esc(p.name)}</span><strong>${p.seats}</strong></div>`).join(""):`<div class="empty">No parties selected yet.</div>`;
-  const action=total>=majority&&state.classStep==="build"?`<div class="callout success"><h2>Majority reached</h2><p>You have ${total} seats. Review your proposed government before negotiations begin.</p><button class="secondary" id="summaryStart">Review proposed government</button></div>`:"";
+  const m=minorityScenario();
+  let action="";
+  if(state.classStep==="build" && total>=majority){
+    action=`<div class="callout success"><h2>Majority reached</h2><p>You have ${total} seats. Review your proposed government before negotiations begin.</p><button class="secondary" id="summaryStart">Review proposed government</button></div>`;
+  }else if(state.classStep==="build" && m.available && m.passes){
+    action=`<div class="callout warn"><h2>No 61? There may be another route</h2><p>Your ${total} seat coalition could attempt a minority government. If Ra'am's ${m.externalSupport} MKs support the confidence vote from outside government and the Joint Arab List's ${m.abstentions} MKs abstain, the vote would be ${m.yes} to ${m.no}.</p><button class="secondary" id="minorityStart">Explore minority government</button></div>`;
+  }
   return `<section class="coalitionBox"><div class="sectionHead"><div><h2>Your coalition</h2><p>Selected parties and seats</p></div></div>${rows}</section>${action}`;
 }
+
 function policyPanel(){
   const hard=hardPolicyConflicts();
   return `<section class="analysisSection" id="policySection">
@@ -702,11 +714,12 @@ function knessetVisual(){
 
 function renderReport(){
   const r=coalitionReport(),c=chosen(),compromises=policyAnalysis().filter(i=>state.policyDecisions[i.key]==="compromise").length;
+  const m=minorityScenario();
   app.innerHTML=`<section class="outcomeScreen"><div class="outcomeCard ${r.success?"success":"failure"}">
     <img src="assets/branding/swu_uk_horizontal.webp" alt="StandWithUs UK" style="width:190px;margin-bottom:18px">
     <div class="outcomeIcon">${r.success?"✓":"!"}</div>
     <h1 class="outcomeTitle">${r.success?"You built the coalition":"This coalition is doomed to fail"}</h1>
-    <p class="outcomeLead">${r.success?"Your coalition passed the numbers, relationship, policy and leadership tests.":"Your coalition failed one or more tests. The report below explains why."}</p>
+    <p class="outcomeLead">${r.success?(state.minorityMode?`Your ${r.total} seat minority coalition can take office in this scenario because the confidence vote passes ${m.yes} to ${m.no}, with ${m.abstentions} abstentions.`:"Your coalition passed the numbers, relationship, policy and leadership tests."):"Your coalition failed one or more tests. The report below explains why."}</p>
     <div class="resultGrid">
       <div class="resultMetric"><strong>${r.total}</strong><span>coalition seats</span></div>
       <div class="resultMetric"><strong>${c.length}</strong><span>parties</span></div>
@@ -722,13 +735,15 @@ function renderReport(){
 
 function bindSharedEvents(){
   document.getElementById("resetBtn").addEventListener("click",resetGame);
-  document.getElementById("switchModeBtn").addEventListener("click",()=>{state.stage="welcome";state.mode=null;state.selected.clear();state.policyDecisions={};state.classStep="build";render();});
+  document.getElementById("switchModeBtn").addEventListener("click",()=>{state.stage="welcome";state.mode=null;state.selected.clear();state.policyDecisions={};state.classStep="build";state.minorityMode=false;render();});
   document.querySelectorAll("[data-sector]").forEach(b=>b.addEventListener("click",()=>{state.sector=b.dataset.sector;render();}));
   document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",()=>{
-    const id=b.dataset.party;state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};render();
+    const id=b.dataset.party;state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();
   }));
   document.querySelectorAll("[data-policy]").forEach(b=>b.addEventListener("click",()=>{state.policyDecisions[b.dataset.policy]=b.dataset.decision;render();}));
 
+  const minorityStart=document.getElementById("minorityStart");
+  if(minorityStart) minorityStart.addEventListener("click",()=>{state.minorityMode=true;state.classStep="summary";render();setTimeout(()=>document.getElementById("coalitionSummaryScreen")?.scrollIntoView({behavior:"smooth"}),50);});
   const summaryStart=document.getElementById("summaryStart");
   if(summaryStart) summaryStart.addEventListener("click",()=>{
     state.classStep="summary";
@@ -768,7 +783,7 @@ function bindSharedEvents(){
 }
 
 function resetGame(){
-  state.selected.clear();state.sector="All";state.stage="build";state.policyDecisions={};state.classStep="build";render();window.scrollTo({top:0,behavior:"smooth"});
+  state.selected.clear();state.sector="All";state.stage="build";state.policyDecisions={};state.classStep="build";state.minorityMode=false;render();window.scrollTo({top:0,behavior:"smooth"});
 }
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service_worker.js").catch(()=>{}))}
