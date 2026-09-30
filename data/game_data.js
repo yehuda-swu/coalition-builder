@@ -33,8 +33,8 @@ window.GAME_DATA = {
 
   sectors: [
     {name:"All", icon:"◉", colour:"#082f5f"},
-    {name:"Far Left", icon:"✊", colour:"#d1495b"},
     {name:"Left", icon:"🕊", colour:"#2a9d8f"},
+    {name:"Centre", icon:"⚖", colour:"#6b7280"},
     {name:"Right", icon:"🛡", colour:"#2f5ea8"},
     {name:"Far Right", icon:"⚑", colour:"#e67e22"},
     {name:"Ultra Orthodox Jewish", icon:"🎩", colour:"#7a4fa3"},
@@ -56,7 +56,7 @@ window.GAME_DATA = {
       veto:["democrats"]
     },
     {
-      id:"yashar", active:true, name:"Yashar", leader:"Gadi Eisenkot", seats:24, sector:"Left",
+      id:"yashar", active:true, name:"Yashar", leader:"Gadi Eisenkot", seats:24, sector:"Centre",
       logo:"assets/logos/yashar.png", photo:"assets/leaders/eisenkot.webp",
       leadership:"Refuses Netanyahu",
       positions:{
@@ -82,7 +82,7 @@ window.GAME_DATA = {
       veto:["otzma_yehudit"]
     },
     {
-      id:"democrats", active:true, name:"The Democrats", leader:"Yair Golan", seats:9, sector:"Far Left",
+      id:"democrats", active:true, name:"The Democrats", leader:"Yair Golan", seats:9, sector:"Left",
       logo:"assets/logos/democrats.webp", photo:"assets/leaders/golan.webp",
       leadership:"Refuses Netanyahu",
       positions:{
@@ -147,8 +147,8 @@ window.GAME_DATA = {
       veto:["democrats","joint_arab_list","raam"]
     },
     {
-      id:"utj", active:true, name:"UTJ", leader:"Moshe Gafni and Yitzhak Goldknopf", seats:8, sector:"Ultra Orthodox Jewish",
-      logo:"assets/logos/utj.webp", photo:"assets/leaders/gafni_goldknopf.webp",
+      id:"utj", active:true, name:"UTJ", leader:"Yaakov Asher and Yitzhak Goldknopf", seats:8, sector:"Ultra Orthodox Jewish",
+      logo:"assets/logos/utj.webp", photo:"assets/leaders/asher_goldknopf.png",
       leadership:"Flexible",
       positions:{
         security:{stance:"Support",strength:"Flexible"},
