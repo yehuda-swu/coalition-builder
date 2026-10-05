@@ -30,7 +30,7 @@ window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "28 September 2026",
+    updated: "5 October 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sources: [
       {
@@ -57,9 +57,9 @@ window.ELECTION_UPDATES = {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "24 September 2026",
+        date: "1 October 2026",
         seats: {
-          likud: 27,
+          likud: 28,
           yashar: 22,
           byachad: 9,
           democrats: 9,
@@ -67,9 +67,9 @@ window.ELECTION_UPDATES = {
           shas: 7,
           otzma_yehudit: 8,
           utj: 8,
-          joint_arab_list: 7,
-          raam: 6,
-          hatzionut_hadati: 6,
+          joint_arab_list: 8,
+          raam: 5,
+          hatzionut_hadati: 5,
           amcha_yisrael: 4
         }
       },
@@ -77,20 +77,20 @@ window.ELECTION_UPDATES = {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
-        date: "27 September 2026",
+        date: "4 October 2026",
         seats: {
           likud: 21,
           yashar: 23,
-          byachad: 11,
-          democrats: 9,
+          byachad: 12,
+          democrats: 8,
           yisrael_beitenu: 9,
-          shas: 7,
-          otzma_yehudit: 7,
-          utj: 7,
-          joint_arab_list: 7,
+          shas: 8,
+          otzma_yehudit: 8,
+          utj: 8,
+          joint_arab_list: 8,
           raam: 5,
           hatzionut_hadati: 6,
-          amcha_yisrael: 4
+          amcha_yisrael: 0
         }
       }
     ]
@@ -112,12 +112,11 @@ window.ELECTION_UPDATES = {
   },
 
   preferredPM: {
-    date: "14 September 2026",
-    source: "N12 / Channel 12, Midgam",
+    date: "27 September 2026",
+    source: "KAN News / Kantar",
     comparisons: [
-      { left: "Gadi Eisenkot", leftValue: 42, right: "Benjamin Netanyahu", rightValue: 36 },
-      { left: "Naftali Bennett", leftValue: 40, right: "Benjamin Netanyahu", rightValue: 39 },
-      { left: "Benjamin Netanyahu", leftValue: 40, right: "Avigdor Lieberman", rightValue: 30 }
+      { left: "Benjamin Netanyahu", leftValue: 39, right: "Gadi Eisenkot", rightValue: 38 },
+      { left: "Benjamin Netanyahu", leftValue: 42, right: "Naftali Bennett", rightValue: 33 }
     ]
   }
 };
