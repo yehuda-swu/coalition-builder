@@ -35,12 +35,27 @@ function minorityScenario(){
   const total=totalSeats();
   const raam=activeParties().find(p=>p.id==="raam");
   const joint=activeParties().find(p=>p.id==="joint_arab_list");
-  const available=!state.selected.has("raam")&&!state.selected.has("joint_arab_list")&&total<majority;
-  const externalSupport=available?(raam?.seats||0):0;
-  const abstentions=available?(joint?.seats||0):0;
+  const raamInside=state.selected.has("raam");
+  const jointInside=state.selected.has("joint_arab_list");
+
+  // Joint Arab List can never be part of the governing coalition.
+  // Ra'am may either sit inside the coalition or, if not selected, provide
+  // external support. Joint Arab List abstention can still make a minority
+  // confidence vote viable.
+  const available=!jointInside && total<majority;
+  const externalSupport=available && !raamInside ? (raam?.seats||0) : 0;
+  const abstentions=available ? (joint?.seats||0) : 0;
   const yes=total+externalSupport;
   const no=120-total-externalSupport-abstentions;
-  return {available,externalSupport,abstentions,yes,no,passes:available&&yes>no};
+  return {
+    available,
+    raamInside,
+    externalSupport,
+    abstentions,
+    yes,
+    no,
+    passes:available&&yes>no
+  };
 }
 function sectorColour(name){return (sectors.find(s=>s.name===name)||sectors[0]).colour}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -89,7 +104,13 @@ function analyseIssue(key){
   let explanation="There is no direct support and opposition clash on this issue.";
 
   if(support.length && oppose.length){
-    if((supportAbsolute.length && oppose.length) || (opposeAbsolute.length && support.length)){
+    if(key==="charedi"){
+      category="Negotiable";
+      explanation="The parties disagree sharply on Charedi military and national service. A coalition agreement can bridge the issue for government formation, but the underlying conflict will reduce Coalition Strength.";
+    }else if(key==="arab" && allChosen.some(p=>p.id==="raam")){
+      category="Negotiable";
+      explanation="Ra'am is included as a coalition partner. Some selected parties are reluctant to govern with an Arab party, but this can be tested through coalition negotiation. Any direct party veto is checked separately.";
+    }else if((supportAbsolute.length && oppose.length) || (opposeAbsolute.length && support.length)){
       category="Red line conflict";
       explanation="The coalition contains an absolute position that directly conflicts with another party. This cannot be resolved through compromise.";
     }else if(supportRed.length && opposeRed.length){
@@ -147,6 +168,58 @@ function leadershipAnalysis(){
   if(refuses.length&&!requires.length) route="Non Netanyahu coalition possible";
   return {requires,refuses,flexible,conflict,route};
 }
+
+function coalitionStrength(){
+  const parties=chosen();
+  const ids=new Set(parties.map(p=>p.id));
+  const has=id=>ids.has(id);
+  const factors=[];
+  let score=100;
+  const add=(points,label)=>{score+=points;factors.push({points,label});};
+
+  // Count only decisions the player actually negotiated. This avoids rerunning
+  // policyAnalysis while the final report is being rendered.
+  const negotiatedKeys=Object.keys(state.policyDecisions||{}).filter(k=>state.policyDecisions[k]==="compromise");
+  negotiatedKeys.forEach(k=>add(-8,`${issues[k]||k} required a negotiated compromise.`));
+
+  const charedi=has("shas")||has("utj");
+  const proIntegration=["yashar","byachad","democrats","yisrael_beitenu"].filter(has);
+  if(has("raam")){
+    // Ra'am can enter a non Netanyahu coalition, but reluctance is not erased
+    // by the agreement. These are game stability values, not statistical forecasts.
+    if(has("yashar")) add(-8,"Yashar enters government with Ra'am despite significant reservations about Arab party participation.");
+    if(has("byachad")) add(-10,"B'Yachad enters government with Ra'am despite deep reluctance about relying on an Arab coalition partner.");
+    if(has("yisrael_beitenu")) add(-12,"Yisrael Beitenu enters government with Ra'am despite deep reluctance about Arab party participation.");
+  }
+
+  if(charedi && proIntegration.length) add(-12,"Charedi military and national service remains a structural pressure point.");
+  if(has("yashar") && has("shas")) add(-10,"Yashar and Shas have sharply different expectations on national service.");
+  if(has("yashar") && has("utj")) add(-14,"Yashar and UTJ have sharply different expectations on national service.");
+  if(has("byachad") && charedi) add(-8,"B'Yachad and the Charedi parties face a significant national service dispute.");
+  if(has("democrats") && charedi) add(-12,"The Democrats and the Charedi parties have a severe national service policy gap.");
+  if(has("yisrael_beitenu") && charedi) add(-16,"Yisrael Beitenu and the Charedi parties have a severe national service policy gap.");
+  if(has("yashar") && !has("likud") && charedi) add(-10,"A Yashar led government relying on Charedi partners crosses established bloc expectations.");
+
+  if(state.minorityMode){
+    const coalitionSeats=parties.reduce((sum,p)=>sum+(Number(p.seats)||0),0);
+    const gap=Math.max(0,61-coalitionSeats);
+    add(-18,"The government depends on parties outside the coalition to survive confidence votes.");
+    if(gap>=4) add(-6,`The coalition is ${gap} seats short of an outright majority.`);
+    if(gap>=7) add(-5,"The government is substantially below the 61 seat majority threshold.");
+  }
+
+  if(parties.length>=6) add(-4,"A six party or larger coalition increases the burden of maintaining agreement.");
+  if(parties.length>=8) add(-4,"The unusually broad coalition creates additional coordination pressure.");
+
+  score=Math.max(5,Math.min(100,Math.round(score)));
+  let label="STRONG",message="Your coalition has a strong political foundation.";
+  if(score<85){label="STABLE";message="Your coalition has a credible basis for governing, although disagreements remain.";}
+  if(score<70){label="TESTED";message="Your government can function, but important tensions will repeatedly test coalition discipline.";}
+  if(score<50){label="FRAGILE";message="You formed a government, but significant political tensions threaten its stability.";}
+  if(score<30){label="EXTREMELY FRAGILE";message="You formed a government, but keeping its parties and outside supporters together will be exceptionally difficult.";}
+  return {score,label,message,factors};
+}
+
 function coalitionReport(){
   const total=totalSeats();
   const eligibility=coalitionEligibilityConflicts();
@@ -249,18 +322,30 @@ function instructionsPanel(){
 function pollingSnapshotPanel(){
   const seat=electionMeta?.seatPoll;
   const pm=electionMeta?.preferredPM;
-  const comparisons=(pm?.comparisons||[]).map(c=>`
-    <div class="pmComparison">
-      <div class="pmNames">
-        <span>${esc(c.left)} <strong>${c.leftValue}%</strong></span>
-        <span>${esc(c.right)} <strong>${c.rightValue}%</strong></span>
+  const polls=pm?.polls || (pm?.comparisons ? [{
+    source:pm.source,
+    date:pm.date,
+    comparisons:pm.comparisons
+  }] : []);
+
+  const pollCards=polls.map(poll=>{
+    const comparisons=(poll.comparisons||[]).map(c=>`
+      <div class="pmComparison">
+        <div class="pmNames">
+          <span>${esc(c.left)} <strong>${c.leftValue}%</strong></span>
+          <span>${esc(c.right)} <strong>${c.rightValue}%</strong></span>
+        </div>
+        <div class="pmBars">
+          <div class="pmBar"><i style="width:${c.leftValue}%"></i></div>
+          <div class="pmBar alt"><i style="width:${c.rightValue}%"></i></div>
+        </div>
       </div>
-      <div class="pmBars">
-        <div class="pmBar"><i style="width:${c.leftValue}%"></i></div>
-        <div class="pmBar alt"><i style="width:${c.rightValue}%"></i></div>
-      </div>
-    </div>
-  `).join("");
+    `).join("");
+    return `<div class="pmPollCard">
+      <div class="pmPollSource"><strong>${esc(poll.source||"")}</strong><span>${esc(poll.date||"")}</span></div>
+      ${comparisons}
+    </div>`;
+  }).join("");
 
   return `<section class="pollingStrip">
     <div class="seatPollMeta">
@@ -272,9 +357,9 @@ function pollingSnapshotPanel(){
     <div class="pmPollArea">
       <div class="pmPollHead">
         <strong>Preferred Prime Minister</strong>
-        <span>${esc(pm?.source||"")} · ${esc(pm?.date||"")}</span>
+        <span>Latest head to head polling</span>
       </div>
-      <div class="pmComparisonGrid">${comparisons}</div>
+      <div class="pmPollCards">${pollCards}</div>
       <small class="pmPollNote">${esc(pm?.note||"")}</small>
     </div>
   </section>`;
@@ -714,7 +799,7 @@ function knessetVisual(){
 
 function renderReport(){
   const r=coalitionReport(),c=chosen(),compromises=policyAnalysis().filter(i=>state.policyDecisions[i.key]==="compromise").length;
-  const m=minorityScenario();
+  const m=minorityScenario(),strength=coalitionStrength();
   app.innerHTML=`<section class="outcomeScreen"><div class="outcomeCard ${r.success?"success":"failure"}">
     <img src="assets/branding/swu_uk_horizontal.webp" alt="StandWithUs UK" style="width:190px;margin-bottom:18px">
     <div class="outcomeIcon">${r.success?"✓":"!"}</div>
@@ -724,8 +809,15 @@ function renderReport(){
       <div class="resultMetric"><strong>${r.total}</strong><span>coalition seats</span></div>
       <div class="resultMetric"><strong>${c.length}</strong><span>parties</span></div>
       <div class="resultMetric"><strong>${compromises}</strong><span>negotiated issues</span></div>
-      <div class="resultMetric"><strong>${r.leadership.conflict?"Conflict":"Compatible"}</strong><span>leadership</span></div>
+      <div class="resultMetric"><strong>${r.success?strength.score+"%":(r.leadership.conflict?"Conflict":"Compatible")}</strong><span>${r.success?"coalition strength":"leadership"}</span></div>
     </div>
+    ${r.success?`<div class="strengthPanel strength${strength.score<30?"Low":strength.score<70?"Mid":"High"}">
+      <div class="strengthTop"><div><span>COALITION STRENGTH</span><strong>${strength.score}%</strong></div><b>${esc(strength.label)}</b></div>
+      <div class="strengthTrack"><i style="width:${strength.score}%"></i></div>
+      <p>${esc(strength.message)}</p>
+      ${strength.factors.length?`<div class="strengthFactors">${strength.factors.map(f=>`<div><strong>${f.points>0?"+":""}${f.points}</strong><span>${esc(f.label)}</span></div>`).join("")}</div>`:""}
+      <small>Coalition Strength is an educational game score based on the coalition's agreements, compromises and political relationships. It is not a statistical prediction of how long a real government would survive.</small>
+    </div>`:""}
     ${!r.success?`<div class="reasonList">${r.reasons.map(x=>`<div>✕ ${esc(x)}</div>`).join("")}</div>`:""}
     <div class="outcomeActions"><button class="secondary" id="adjustBtn">Adjust coalition</button><button class="ghost" id="newGameBtn">Build another coalition</button></div>
   </div></section>`;

@@ -13,63 +13,58 @@ Method:
 4. Take the whole number below each party's genuine average.
 5. Allocate the remaining seats by largest decimal remainder until the Knesset totals exactly 120 seats.
 
-This version includes:
-Channel 12
-Channel 13
-KAN 11
-Israel Hayom
+This game Poll of Polls uses the latest available poll from:
+N12 / Channel 12
 i24NEWS
-Channel 14
+KAN 11
 
-i24NEWS and Channel 14 are intentionally included.
-
-The current source poll figures were published between 2 and 6 August 2026.
+The current source polls were published between 5 and 11 October 2026.
 */
 
 window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "5 October 2026",
+    updated: "12 October 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sources: [
       {
         id: "channel12",
         name: "N12 / Channel 12",
         pollster: "Midgam",
-        date: "22 September 2026",
+        date: "5 October 2026",
         seats: {
-          likud: 20,
+          likud: 21,
           yashar: 23,
           byachad: 13,
           democrats: 9,
           yisrael_beitenu: 9,
           shas: 7,
-          otzma_yehudit: 6,
+          otzma_yehudit: 7,
           utj: 8,
-          joint_arab_list: 7,
+          joint_arab_list: 8,
           raam: 5,
-          hatzionut_hadati: 5,
-          amcha_yisrael: 4
+          hatzionut_hadati: 6,
+          amcha_yisrael: 0
         }
       },
       {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "1 October 2026",
+        date: "8 October 2026",
         seats: {
-          likud: 28,
-          yashar: 22,
-          byachad: 9,
-          democrats: 9,
+          likud: 26,
+          yashar: 20,
+          byachad: 11,
+          democrats: 10,
           yisrael_beitenu: 7,
           shas: 7,
-          otzma_yehudit: 8,
+          otzma_yehudit: 9,
           utj: 8,
-          joint_arab_list: 8,
+          joint_arab_list: 7,
           raam: 5,
-          hatzionut_hadati: 5,
+          hatzionut_hadati: 6,
           amcha_yisrael: 4
         }
       },
@@ -77,20 +72,20 @@ window.ELECTION_UPDATES = {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
-        date: "4 October 2026",
+        date: "11 October 2026",
         seats: {
-          likud: 21,
-          yashar: 23,
+          likud: 20,
+          yashar: 22,
           byachad: 12,
           democrats: 8,
-          yisrael_beitenu: 9,
-          shas: 8,
-          otzma_yehudit: 8,
+          yisrael_beitenu: 8,
+          shas: 7,
+          otzma_yehudit: 9,
           utj: 8,
           joint_arab_list: 8,
           raam: 5,
-          hatzionut_hadati: 6,
-          amcha_yisrael: 0
+          hatzionut_hadati: 5,
+          amcha_yisrael: 4
         }
       }
     ]
@@ -112,12 +107,30 @@ window.ELECTION_UPDATES = {
   },
 
   preferredPM: {
-    date: "27 September 2026",
-    source: "KAN News / Kantar",
-    comparisons: [
-      { left: "Benjamin Netanyahu", leftValue: 39, right: "Gadi Eisenkot", rightValue: 38 },
-      { left: "Benjamin Netanyahu", leftValue: 42, right: "Naftali Bennett", rightValue: 33 }
-    ]
+    polls: [
+      {
+        date: "11 October 2026",
+        source: "KAN News / Kantar",
+        comparisons: [
+          { left: "Gadi Eisenkot", leftValue: 43, right: "Benjamin Netanyahu", rightValue: 38 }
+        ]
+      },
+      {
+        date: "8 October 2026",
+        source: "Maariv / Lazar Research",
+        comparisons: [
+          { left: "Gadi Eisenkot", leftValue: 46, right: "Benjamin Netanyahu", rightValue: 40 }
+        ]
+      },
+      {
+        date: "5 October 2026",
+        source: "N12 / Midgam",
+        comparisons: [
+          { left: "Gadi Eisenkot", leftValue: 41, right: "Benjamin Netanyahu", rightValue: 38 }
+        ]
+      }
+    ],
+    note: "Head to head suitability for Prime Minister. Polls use different samples and methodologies and should be read separately."
   }
 };
 
@@ -258,10 +271,8 @@ DO NOT EDIT BELOW THIS LINE
 
   game.electionMeta.preferredPM = {
     label: "Preferred Prime Minister polling",
-    date: updates.preferredPM.date,
-    source: updates.preferredPM.source,
-    note: "These are separate head to head questions rather than one combined vote.",
-    comparisons: updates.preferredPM.comparisons
+    polls: updates.preferredPM.polls || [],
+    note: updates.preferredPM.note || "These are separate head to head questions rather than one combined vote."
   };
 
   game.electionMeta.pollOfPollsDetail = {
