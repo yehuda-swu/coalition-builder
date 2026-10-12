@@ -1,4 +1,4 @@
-const CACHE='61_pm_three_polls_visible_fix_2026_10_12';
+const CACHE='61_coalition_sensitive_minority_2026_10_12';
 const ASSETS=[
   './',
   'index.html',
