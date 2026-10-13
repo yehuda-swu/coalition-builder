@@ -157,7 +157,7 @@ window.GAME_DATA = {
         arab:{stance:"Support",strength:"Flexible"},
         charedi:{stance:"Oppose",strength:"Red line"}
       },
-      veto:["yisrael_beitenu","yashar","byachad","democrats"]
+      veto:[]
     },
     {
       id:"shas", active:true, name:"Shas", leader:"Arye Deri", seats:7, sector:"Ultra Orthodox Jewish",
@@ -170,7 +170,7 @@ window.GAME_DATA = {
         arab:{stance:"Support",strength:"Flexible"},
         charedi:{stance:"Oppose",strength:"Red line"}
       },
-      veto:["yisrael_beitenu","yashar","byachad","democrats"]
+      veto:[]
     },
     {
       id:"joint_arab_list", active:true, name:"Joint Arab List", leader:"Youssef Jabareen", seats:5, sector:"Arab",
@@ -182,7 +182,7 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Red line"},
         inquiry:{stance:"Flexible",strength:"Flexible"},
         judicial:{stance:"Flexible",strength:"Flexible"},
-        arab:{stance:"Support",strength:"Absolute Red Line"},
+        arab:{stance:"Oppose",strength:"Absolute Red Line"},
         charedi:{stance:"Flexible",strength:"Flexible"}
       },
       veto:["likud","otzma_yehudit","hatzionut_hadati","amcha_yisrael"]
@@ -195,7 +195,7 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Red line"},
         inquiry:{stance:"Flexible",strength:"Flexible"},
         judicial:{stance:"Flexible",strength:"Flexible"},
-        arab:{stance:"Support",strength:"Red line"},
+        arab:{stance:"Flexible",strength:"Flexible"},
         charedi:{stance:"Flexible",strength:"Flexible"}
       },
       veto:["likud","otzma_yehudit","hatzionut_hadati"]

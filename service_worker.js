@@ -1,4 +1,4 @@
-const CACHE='61_coalition_sensitive_minority_2026_10_12';
+const CACHE='61_arab_policy_edit_2026_10_13';
 const ASSETS=[
   './',
   'index.html',
