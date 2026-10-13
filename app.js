@@ -8,7 +8,8 @@ const state = {
   mode:null,
   policyDecisions:{},
   classStep:"build",
-  minorityMode:false
+  minorityMode:false,
+  infoParty:null
 };
 
 const app=document.getElementById("app");
@@ -394,6 +395,7 @@ function renderIndividual(){
     <section><div class="sectionHead"><div><h2>Political sectors</h2><p>Explore the parties and invite them into your coalition.</p></div></div>${sectorButtons()}</section>
     <section><div class="sectionHead"><div><h2>${state.sector==="All"?"All parties":esc(state.sector)}</h2><p>${filtered.length} ${filtered.length===1?"party":"parties"} in view</p></div></div><div class="partyGrid">${filtered.map(p=>partyCard(p)).join("")}</div></section>
     ${coalitionPanel()}
+    ${state.infoParty?partyPositionsPanel(activeParties().find(p=>p.id===state.infoParty)):""}
     ${state.classStep==="summary"?coalitionSummaryPanel():""}
     ${state.classStep==="policy"?policyPanel(false):""}
     ${state.classStep==="relationships"?individualRelationshipStage():""}
@@ -680,9 +682,15 @@ function relationshipAlert(){
   return r.length?`<div class="redLineAlert"><div class="redLineIcon">!</div><div><strong>Party relationship veto detected</strong><span>${r.map(x=>`${esc(x.a.name)} and ${esc(x.b.name)}`).join(", ")} cannot govern together in this scenario.</span></div></div>`:"";
 }
 function sectorButtons(){return `<div class="sectorGrid">${sectors.map(s=>`<button class="sectorTile ${state.sector===s.name?"active":""}" style="--sector:${s.colour}" data-sector="${esc(s.name)}"><span class="sectorIcon">${s.icon}</span><span class="sectorName">${esc(s.name)}</span></button>`).join("")}</div>`}
+const publicIssueOrder=["security","judicial","charedi","arab","inquiry"];
+const publicIssueLabels={security:"Security and the Palestinians",judicial:"Judicial Reform",charedi:"Charedi Integration",arab:"Arab Parties in Government",inquiry:"October 7th Inquiry"};
+function partyPositionsPanel(p){
+  if(!p)return "";
+  return `<div class="partyInfoBackdrop" id="partyInfoBackdrop"><section class="partyInfoPanel" role="dialog" aria-modal="true"><button class="partyInfoClose" id="partyInfoClose" aria-label="Close">×</button><div class="partyInfoHeader" style="--sector:${sectorColour(p.sector)}"><img src="${p.logo}" alt="${esc(p.name)} logo"><div><span>PARTY POSITIONS</span><h2>${esc(p.name)}</h2><p>${esc(p.leader)} · ${esc(p.sector)}</p></div></div><div class="partyIssueList">${publicIssueOrder.map(key=>{const pos=p.positions[key];const strength=pos.strength==="Flexible"?"Open to negotiation":pos.strength;return `<div class="partyIssueRow"><div><strong>${esc(publicIssueLabels[key])}</strong><span>${esc(strength)}</span></div><b class="positionStance stance${esc(pos.stance)}">${esc(pos.stance)}</b></div>`}).join("")}</div><div class="partyInfoNote">These are the five policy issues used in coalition negotiations. Leadership positions are revealed later in the game.</div></section></div>`;
+}
 function partyCard(p){
   const selected=state.selected.has(p.id);
-  return `<article class="partyCard ${selected?"selected":""}" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}"><div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button></div></article>`;
+  return `<article class="partyCard ${selected?"selected":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}"><div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div><button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button></div></article>`;
 }
 function classPartyTile(p){
   const selected=state.selected.has(p.id);
@@ -852,9 +860,11 @@ function bindSharedEvents(){
   document.getElementById("resetBtn").addEventListener("click",resetGame);
   document.getElementById("switchModeBtn").addEventListener("click",()=>{state.stage="welcome";state.mode=null;state.selected.clear();state.policyDecisions={};state.classStep="build";state.minorityMode=false;render();});
   document.querySelectorAll("[data-sector]").forEach(b=>b.addEventListener("click",()=>{state.sector=b.dataset.sector;render();}));
-  document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",()=>{
-    const id=b.dataset.party;state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();
-  }));
+  document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",(event)=>{event.stopPropagation();const id=b.dataset.party;state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();}));
+  document.querySelectorAll("[data-party-info]").forEach(card=>{const open=()=>{state.infoParty=card.dataset.partyInfo;render();};card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});});
+  document.getElementById("partyInfoClose")?.addEventListener("click",()=>{state.infoParty=null;render();});
+  document.getElementById("partyInfoBackdrop")?.addEventListener("click",e=>{if(e.target.id==="partyInfoBackdrop"){state.infoParty=null;render();}});
+
   document.querySelectorAll("[data-policy]").forEach(b=>b.addEventListener("click",()=>{state.policyDecisions[b.dataset.policy]=b.dataset.decision;render();}));
 
   const minorityStart=document.getElementById("minorityStart");

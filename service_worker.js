@@ -1,4 +1,4 @@
-const CACHE='61_arab_policy_edit_2026_10_13';
+const CACHE='61_party_positions_button_2026_10_13';
 const ASSETS=[
   './',
   'index.html',
