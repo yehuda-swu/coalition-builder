@@ -18,57 +18,57 @@ N12 / Channel 12
 i24NEWS
 KAN 11
 
-The current source polls were published between 5 and 11 October 2026.
+The current source polls were published between 11 and 13 October 2026.
 */
 
 window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "12 October 2026",
+    updated: "14 October 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sources: [
-      {
+            {
         id: "channel12",
         name: "N12 / Channel 12",
         pollster: "Midgam",
-        date: "5 October 2026",
+        date: "12 October 2026",
         seats: {
-          likud: 21,
+          likud: 20,
           yashar: 23,
           byachad: 13,
           democrats: 9,
           yisrael_beitenu: 9,
-          shas: 7,
-          otzma_yehudit: 7,
-          utj: 8,
+          shas: 8,
+          otzma_yehudit: 8,
+          utj: 7,
           joint_arab_list: 8,
           raam: 5,
           hatzionut_hadati: 6,
           amcha_yisrael: 0
         }
       },
-      {
+            {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "8 October 2026",
+        date: "13 October 2026",
         seats: {
-          likud: 26,
-          yashar: 20,
-          byachad: 11,
-          democrats: 10,
+          likud: 27,
+          yashar: 21,
+          byachad: 13,
+          democrats: 9,
           yisrael_beitenu: 7,
           shas: 7,
           otzma_yehudit: 9,
           utj: 8,
           joint_arab_list: 7,
-          raam: 5,
+          raam: 6,
           hatzionut_hadati: 6,
-          amcha_yisrael: 4
+          amcha_yisrael: 0
         }
       },
-      {
+            {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
@@ -259,7 +259,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.2";
+  game.electionMeta.dataVersion = "5.3";
 
   game.electionMeta.seatPoll = {
     label: pop.label,

@@ -1,4 +1,4 @@
-const CACHE='61_party_positions_button_2026_10_13';
+const CACHE='61_poll_and_welcome_2026_10_14';
 const ASSETS=[
   './',
   'index.html',
