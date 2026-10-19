@@ -109,24 +109,24 @@ window.ELECTION_UPDATES = {
   preferredPM: {
     polls: [
       {
-        date: "11 October 2026",
+        date: "18 October 2026",
         source: "KAN News / Kantar",
         comparisons: [
-          { left: "Gadi Eisenkot", leftValue: 43, right: "Benjamin Netanyahu", rightValue: 38 }
+          { left: "Gadi Eisenkot", leftValue: 43, right: "Benjamin Netanyahu", rightValue: 35 }
         ]
       },
       {
-        date: "8 October 2026",
+        date: "14–15 October 2026",
         source: "Maariv / Lazar Research",
         comparisons: [
-          { left: "Gadi Eisenkot", leftValue: 46, right: "Benjamin Netanyahu", rightValue: 40 }
+          { left: "Gadi Eisenkot", leftValue: 48, right: "Benjamin Netanyahu", rightValue: 41 }
         ]
       },
       {
-        date: "5 October 2026",
+        date: "12 October 2026",
         source: "N12 / Midgam",
         comparisons: [
-          { left: "Gadi Eisenkot", leftValue: 41, right: "Benjamin Netanyahu", rightValue: 38 }
+          { left: "Gadi Eisenkot", leftValue: 45, right: "Benjamin Netanyahu", rightValue: 35 }
         ]
       }
     ],
@@ -261,7 +261,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.4";
+  game.electionMeta.dataVersion = "5.5";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
