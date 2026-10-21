@@ -972,3 +972,61 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 .partyLogoWrap{z-index:2}
 .seatBadge{z-index:4}
 @media(max-width:760px){.ballotCard{right:7px;top:64px;width:92px;height:114px}}
+
+/* Always visible coalition progress */
+.stickyCoalitionInfo{min-width:0;flex:1}
+.stickyProgressArea{width:min(360px,34vw);flex:0 1 360px}
+.stickyProgressHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;font-size:.72rem;font-weight:900;color:var(--muted)}
+.stickyProgressHead strong{color:var(--navy);font-size:.78rem;white-space:nowrap}
+.stickyProgress{height:10px;background:#dfe9f0;border-radius:999px;overflow:hidden;border:1px solid rgba(197,213,224,.85)}
+.stickyProgressFill{height:100%;background:linear-gradient(90deg,var(--blue),#58b4e7);border-radius:999px;transition:width .28s ease}
+.stickyProgressFill.reached{background:linear-gradient(90deg,#2e8b57,#70bd7a)}
+@media(max-width:720px){
+  .stickyInner{display:grid;grid-template-columns:1fr auto;grid-template-areas:"info score" "progress progress";gap:7px 12px;align-items:center}
+  .stickyCoalitionInfo{grid-area:info}
+  .stickyProgressArea{grid-area:progress;width:100%}
+  .stickyScore{grid-area:score;align-self:center}
+  .stickyProgressHead{margin-bottom:5px}
+  .stickyCoalition{padding-top:8px}
+}
+
+/* Compact live Knesset in fixed coalition footer */
+.stickyKnesset{
+  flex:0 0 122px;
+  width:122px;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:2px 7px 0;
+  border-left:1px solid var(--line);
+  border-right:1px solid var(--line);
+}
+.stickyKnesset svg{display:block;width:108px;height:56px;overflow:visible}
+.stickyKnesset circle{transition:fill .25s ease}
+.stickyKnesset text{font-size:16px;font-weight:950;fill:var(--gold)}
+@media(max-width:900px){
+  .stickyKnesset{flex-basis:105px;width:105px;padding-left:5px;padding-right:5px}
+  .stickyKnesset svg{width:94px;height:49px}
+  .stickyProgressArea{width:min(300px,31vw);flex-basis:300px}
+}
+@media(max-width:720px){
+  .stickyInner{
+    grid-template-columns:1fr auto auto;
+    grid-template-areas:"info knesset score" "progress progress progress";
+  }
+  .stickyKnesset{
+    grid-area:knesset;
+    width:86px;
+    height:44px;
+    border-left:1px solid var(--line);
+    border-right:0;
+    padding:0 6px;
+  }
+  .stickyKnesset svg{width:76px;height:40px}
+}
+@media(max-width:430px){
+  .stickyKnesset{width:70px;padding-left:4px;padding-right:4px}
+  .stickyKnesset svg{width:62px;height:34px}
+  .stickyScore{min-width:64px}
+}

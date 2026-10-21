@@ -1,4 +1,4 @@
-const CACHE='61_ballot_cards_2026_10_21';
+const CACHE='61_sticky_knesset_2026_10_21';
 const ASSETS=[
   './',
   'index.html',

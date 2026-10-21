@@ -835,9 +835,29 @@ function individualRelationshipStage(){
   </section>`;
 }
 
+function stickyKnessetVisual(){
+  const colours=[];chosen().forEach(p=>{for(let i=0;i<p.seats;i++) colours.push(sectorColour(p.sector));});
+  const seats=[],rows=[24,22,20,18,16,12,8],radii=[172,151,130,109,88,67,46],cx=210,cy=196;
+  rows.forEach((count,row)=>{const start=Math.PI*1.08,end=Math.PI*1.92,r=radii[row];for(let i=0;i<count;i++){const t=count===1?.5:i/(count-1),angle=start+(end-start)*t,x=cx+Math.cos(angle)*r,y=cy+Math.sin(angle)*r;seats.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.2" fill="${colours[seats.length]||"#dce5ed"}"></circle>`);}});
+  return `<div class="stickyKnesset" aria-label="Current coalition shown in the Knesset"><svg viewBox="0 0 420 215" role="img">${seats.join("")}<line x1="210" y1="198" x2="210" y2="172" stroke="#c99a2e" stroke-width="3"></line><text x="210" y="211" text-anchor="middle">${majority}</text></svg></div>`;
+}
+
 function stickyCoalition(){
-  const total=totalSeats(),c=chosen(),chips=c.slice(0,5).map(p=>`<span class="coalitionChip" style="--sector:${sectorColour(p.sector)}">${esc(p.name)}</span>`).join("");
-  return `<div class="stickyCoalition"><div class="stickyInner"><div><div class="stickyLabel">Current coalition</div><div class="coalitionChips">${chips||'<span class="coalitionEmpty">Choose your first party</span>'}${c.length>5?`<span class="coalitionMore">+${c.length-5}</span>`:""}</div></div><div class="stickyScore ${total>=majority?"reached":""}"><strong>${total}</strong><span>/ ${majority}</span></div></div></div>`;
+  const total=totalSeats(),c=chosen(),progress=Math.min(100,total/majority*100),chips=c.slice(0,5).map(p=>`<span class="coalitionChip" style="--sector:${sectorColour(p.sector)}">${esc(p.name)}</span>`).join("");
+  return `<div class="stickyCoalition">
+    <div class="stickyInner">
+      <div class="stickyCoalitionInfo">
+        <div class="stickyLabel">Current coalition</div>
+        <div class="coalitionChips">${chips||'<span class="coalitionEmpty">Choose your first party</span>'}${c.length>5?`<span class="coalitionMore">+${c.length-5}</span>`:""}</div>
+      </div>
+      ${stickyKnessetVisual()}
+      <div class="stickyProgressArea">
+        <div class="stickyProgressHead"><span>${total>=majority?"Majority reached":"Progress to 61"}</span><strong>${total} / ${majority}</strong></div>
+        <div class="stickyProgress"><div class="stickyProgressFill ${total>=majority?"reached":""}" style="width:${progress}%"></div></div>
+      </div>
+      <div class="stickyScore ${total>=majority?"reached":""}"><strong>${total}</strong><span>/ ${majority}</span></div>
+    </div>
+  </div>`;
 }
 function knessetVisual(){
   const colours=[];chosen().forEach(p=>{for(let i=0;i<p.seats;i++) colours.push(sectorColour(p.sector));});
