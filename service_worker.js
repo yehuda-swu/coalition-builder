@@ -1,4 +1,4 @@
-const CACHE='61_two_parties_poll_2026_10_21';
+const CACHE='61_ballot_cards_2026_10_21';
 const ASSETS=[
   './',
   'index.html',

@@ -688,9 +688,27 @@ function partyPositionsPanel(p){
   if(!p)return "";
   return `<div class="partyInfoBackdrop" id="partyInfoBackdrop"><section class="partyInfoPanel" role="dialog" aria-modal="true"><button class="partyInfoClose" id="partyInfoClose" aria-label="Close">×</button><div class="partyInfoHeader" style="--sector:${sectorColour(p.sector)}"><img src="${p.logo}" alt="${esc(p.name)} logo"><div><span>PARTY POSITIONS</span><h2>${esc(p.name)}</h2><p>${esc(p.leader)} · ${esc(p.sector)}</p></div></div><div class="partyIssueList">${publicIssueOrder.map(key=>{const pos=p.positions[key];const strength=pos.strength==="Flexible"?"Open to negotiation":pos.strength;return `<div class="partyIssueRow"><div><strong>${esc(publicIssueLabels[key])}</strong><span>${esc(strength)}</span></div><b class="positionStance stance${esc(pos.stance)}">${esc(pos.stance)}</b></div>`}).join("")}</div><div class="partyInfoNote">These are the five policy issues used in coalition negotiations. Leadership positions are revealed later in the game.</div></section></div>`;
 }
+const ballotCards={
+  likud:"assets/ballots/likud.png",
+  yashar:"assets/ballots/yashar.png",
+  byachad:"assets/ballots/byachad.png",
+  democrats:"assets/ballots/democrats.png",
+  yisrael_beitenu:"assets/ballots/yisrael_beitenu.png",
+  amcha_yisrael:"assets/ballots/amcha_yisrael.png",
+  reservists_economic:"assets/ballots/reservists_economic.png",
+  haredi_public:"assets/ballots/haredi_public.png",
+  hatzionut_hadati:"assets/ballots/hatzionut_hadati.png",
+  otzma_yehudit:"assets/ballots/otzma_yehudit.png",
+  utj:"assets/ballots/utj.png",
+  shas:"assets/ballots/shas.png",
+  joint_arab_list:"assets/ballots/joint_arab_list.png",
+  raam:"assets/ballots/raam.png"
+};
+
 function partyCard(p){
   const selected=state.selected.has(p.id);
-  return `<article class="partyCard ${selected?"selected":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}"><div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div><button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button></div></article>`;
+  const ballot=ballotCards[p.id];
+  return `<article class="partyCard ${selected?"selected":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">${ballot?`<img class="ballotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}<div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div><button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button></div></article>`;
 }
 function classPartyTile(p){
   const selected=state.selected.has(p.id);
