@@ -202,7 +202,7 @@ function coalitionStrength(){
   negotiatedKeys.forEach(k=>add(-8,`${issues[k]||k} required a negotiated compromise.`));
 
   const charedi=has("shas")||has("utj");
-  const proIntegration=["yashar","byachad","democrats","yisrael_beitenu"].filter(has);
+  const proIntegration=["yashar","byachad","democrats","yisrael_beitenu","reservists_economic"].filter(has);
   if(has("raam")){
     // Ra'am can enter a non Netanyahu coalition, but reluctance is not erased
     // by the agreement. These are game stability values, not statistical forecasts.

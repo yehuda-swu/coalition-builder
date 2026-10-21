@@ -121,6 +121,32 @@ window.GAME_DATA = {
       veto:["yashar","joint_arab_list"]
     },
     {
+      id:"reservists_economic", active:true, name:"Reservists-Economic", leader:"Yoaz Hendel and Yaron Zelekha", seats:0, sector:"Centre",
+      logo:"assets/logos/reservists_economic.png", photo:"assets/leaders/hendel_zelikha.png",
+      leadership:"Flexible",
+      positions:{
+        security:{stance:"Support",strength:"Flexible"},
+        inquiry:{stance:"Support",strength:"Red line"},
+        judicial:{stance:"Flexible",strength:"Flexible"},
+        arab:{stance:"Oppose",strength:"Absolute Red Line"},
+        charedi:{stance:"Support",strength:"Red line"}
+      },
+      veto:["utj","shas","joint_arab_list","raam"]
+    },
+    {
+      id:"haredi_public", active:true, name:"The Haredi Public", leader:"Moti Leitner", seats:0, sector:"Ultra Orthodox Jewish",
+      logo:"assets/logos/haredi_public.png", photo:"assets/leaders/moti_leitner.png",
+      leadership:"Flexible",
+      positions:{
+        security:{stance:"Flexible",strength:"Flexible"},
+        inquiry:{stance:"Flexible",strength:"Flexible"},
+        judicial:{stance:"Flexible",strength:"Flexible"},
+        arab:{stance:"Flexible",strength:"Flexible"},
+        charedi:{stance:"Support",strength:"Flexible"}
+      },
+      veto:[]
+    },
+    {
       id:"hatzionut_hadati", active:true, name:"Hatzionut HaDatit", leader:"Bezalel Smotrich", seats:4, sector:"Far Right",
       logo:"assets/logos/hatzionut_hadati.webp", photo:"assets/leaders/smotrich.webp",
       leadership:"Requires Netanyahu",

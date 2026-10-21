@@ -18,57 +18,61 @@ N12 / Channel 12
 i24NEWS
 KAN 11
 
-The current source polls were published between 12 and 18 October 2026.
+The current source polls were published between 18 and 20 October 2026.
 */
 
 window.ELECTION_UPDATES = {
 
   pollOfPolls: {
     label: "61 Poll of Polls",
-    updated: "19 October 2026",
+    updated: "21 October 2026",
     methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sources: [
-                  {
+                        {
         id: "channel12",
         name: "N12 / Channel 12",
         pollster: "Midgam",
-        date: "12 October 2026",
+        date: "19 October 2026",
         seats: {
-          likud: 20,
-          yashar: 23,
-          byachad: 13,
+          likud: 21,
+          yashar: 24,
+          byachad: 14,
           democrats: 9,
-          yisrael_beitenu: 9,
+          yisrael_beitenu: 8,
           shas: 8,
           otzma_yehudit: 8,
           utj: 7,
-          joint_arab_list: 8,
+          joint_arab_list: 9,
           raam: 5,
-          hatzionut_hadati: 6,
-          amcha_yisrael: 0
+          hatzionut_hadati: 7,
+          amcha_yisrael: 0,
+          reservists_economic: 0,
+          haredi_public: 0
         }
       },
-                  {
+                        {
         id: "i24",
         name: "i24NEWS",
         pollster: "Direct Polls",
-        date: "18 October 2026",
+        date: "20 October 2026",
         seats: {
-          likud: 25,
-          yashar: 21,
-          byachad: 13,
+          likud: 26,
+          yashar: 20,
+          byachad: 12,
           democrats: 9,
-          yisrael_beitenu: 6,
+          yisrael_beitenu: 7,
           shas: 8,
-          otzma_yehudit: 10,
+          otzma_yehudit: 9,
           utj: 8,
           joint_arab_list: 8,
           raam: 6,
-          hatzionut_hadati: 6,
-          amcha_yisrael: 0
+          hatzionut_hadati: 7,
+          amcha_yisrael: 0,
+          reservists_economic: 0,
+          haredi_public: 0
         }
       },
-                  {
+                        {
         id: "kan11",
         name: "KAN 11",
         pollster: "Kantar",
@@ -85,7 +89,9 @@ window.ELECTION_UPDATES = {
           joint_arab_list: 8,
           raam: 5,
           hatzionut_hadati: 7,
-          amcha_yisrael: 0
+          amcha_yisrael: 0,
+          reservists_economic: 4,
+          haredi_public: 0
         }
       }
     ]
@@ -103,7 +109,9 @@ window.ELECTION_UPDATES = {
     shas: true,
     joint_arab_list: true,
     raam: true,
-    amcha_yisrael: true
+    amcha_yisrael: true,
+    reservists_economic: true,
+    haredi_public: true
   },
 
   preferredPM: {
@@ -261,7 +269,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.5";
+  game.electionMeta.dataVersion = "5.6";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
