@@ -684,9 +684,16 @@ function relationshipAlert(){
 function sectorButtons(){return `<div class="sectorGrid">${sectors.map(s=>`<button class="sectorTile ${state.sector===s.name?"active":""}" style="--sector:${s.colour}" data-sector="${esc(s.name)}"><span class="sectorIcon">${s.icon}</span><span class="sectorName">${esc(s.name)}</span></button>`).join("")}</div>`}
 const publicIssueOrder=["security","judicial","charedi","arab","inquiry"];
 const publicIssueLabels={security:"Security and the Palestinians",judicial:"Judicial Reform",charedi:"Charedi Integration",arab:"Arab Parties in Government",inquiry:"October 7th Inquiry"};
+const publicIssueDescriptions={
+  security:"How should Israel balance security, negotiations and the future of the Palestinian territories?",
+  judicial:"Should the balance of power between the government and courts be changed?",
+  charedi:"What should be expected of Charedi Israelis in military or national service and wider society?",
+  arab:"Should Arab parties be able to join or support a governing coalition?",
+  inquiry:"What kind of official inquiry should investigate the failures surrounding October 7th?"
+};
 function partyPositionsPanel(p){
   if(!p)return "";
-  return `<div class="partyInfoBackdrop" id="partyInfoBackdrop"><section class="partyInfoPanel" role="dialog" aria-modal="true"><button class="partyInfoClose" id="partyInfoClose" aria-label="Close">×</button><div class="partyInfoHeader" style="--sector:${sectorColour(p.sector)}"><img src="${p.logo}" alt="${esc(p.name)} logo"><div><span>PARTY POSITIONS</span><h2>${esc(p.name)}</h2><p>${esc(p.leader)} · ${esc(p.sector)}</p></div></div><div class="partyIssueList">${publicIssueOrder.map(key=>{const pos=p.positions[key];const strength=pos.strength==="Flexible"?"Open to negotiation":pos.strength;return `<div class="partyIssueRow"><div><strong>${esc(publicIssueLabels[key])}</strong><span>${esc(strength)}</span></div><b class="positionStance stance${esc(pos.stance)}">${esc(pos.stance)}</b></div>`}).join("")}</div><div class="partyInfoNote">These are the five policy issues used in coalition negotiations. Leadership positions are revealed later in the game.</div></section></div>`;
+  return `<div class="partyInfoBackdrop" id="partyInfoBackdrop"><section class="partyInfoPanel" role="dialog" aria-modal="true"><button class="partyInfoClose" id="partyInfoClose" aria-label="Close">×</button><div class="partyInfoHeader" style="--sector:${sectorColour(p.sector)}"><img src="${p.logo}" alt="${esc(p.name)} logo"><div><span>PARTY POSITIONS</span><h2>${esc(p.name)}</h2><p>${esc(p.leader)} · ${esc(p.sector)}</p></div></div><div class="partyIssueList">${publicIssueOrder.map(key=>{const pos=p.positions[key];const strength=pos.strength==="Flexible"?"Open to negotiation":pos.strength;return `<div class="partyIssueRow"><div class="partyIssueCopy"><strong>${esc(publicIssueLabels[key])}</strong><small>${esc(publicIssueDescriptions[key])}</small><span>${esc(strength)}</span></div><b class="positionStance stance${esc(pos.stance)}">${esc(pos.stance)}</b></div>`}).join("")}</div><div class="partyInfoNote">These are the five policy issues used in coalition negotiations. Leadership positions are revealed later in the game.</div></section></div>`;
 }
 const ballotCards={
   likud:"assets/ballots/likud.png",

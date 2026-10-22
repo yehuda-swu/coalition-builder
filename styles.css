@@ -1030,3 +1030,8 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
   .stickyKnesset svg{width:62px;height:34px}
   .stickyScore{min-width:64px}
 }
+
+/* One-line explanations for the five headline issues */
+.partyIssueCopy{min-width:0}
+.partyIssueCopy small{display:block;margin:4px 18px 5px 0;color:var(--muted);font-size:.78rem;line-height:1.35;font-weight:600;max-width:560px}
+@media(max-width:620px){.partyIssueCopy small{font-size:.74rem;margin-right:8px}}

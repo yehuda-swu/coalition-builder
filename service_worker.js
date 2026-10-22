@@ -1,4 +1,4 @@
-const CACHE='61_sticky_knesset_2026_10_21';
+const CACHE='61_issue_explanations_2026_10_22';
 const ASSETS=[
   './',
   'index.html',
