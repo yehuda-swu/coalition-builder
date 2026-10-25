@@ -353,10 +353,12 @@ function pollingSnapshotPanel(){
         <div class="pmNames">
           <span>${esc(c.left)} <strong>${c.leftValue}%</strong></span>
           <span>${esc(c.right)} <strong>${c.rightValue}%</strong></span>
+          ${c.other ? `<span>${esc(c.other)} <strong>${c.otherValue}%</strong></span>` : ""}
         </div>
         <div class="pmBars">
           <div class="pmBar"><i style="width:${c.leftValue}%"></i></div>
           <div class="pmBar alt"><i style="width:${c.rightValue}%"></i></div>
+          ${c.other ? `<div class="pmBar other"><i style="width:${c.otherValue}%"></i></div>` : ""}
         </div>
       </div>
     `).join("");
@@ -376,7 +378,7 @@ function pollingSnapshotPanel(){
     <div class="pmPollArea">
       <div class="pmPollHead">
         <strong>Preferred Prime Minister</strong>
-        <span>Latest head to head polling</span>
+        <span>Latest polling</span>
       </div>
       <div class="pmPollCards">${pollCards}</div>
       <small class="pmPollNote">${esc(pm?.note||"")}</small>

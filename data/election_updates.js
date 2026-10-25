@@ -68,28 +68,28 @@ window.ELECTION_UPDATES = {
   preferredPM: {
     polls: [
       {
-        date: "18 October 2026",
-        source: "KAN News / Kantar",
-        comparisons: [
-          { left: "Gadi Eisenkot", leftValue: 43, right: "Benjamin Netanyahu", rightValue: 35 }
-        ]
-      },
-      {
-        date: "14–15 October 2026",
-        source: "Maariv / Lazar Research",
-        comparisons: [
-          { left: "Gadi Eisenkot", leftValue: 48, right: "Benjamin Netanyahu", rightValue: 41 }
-        ]
-      },
-      {
-        date: "12 October 2026",
+        date: "24 October 2026",
         source: "N12 / Midgam",
         comparisons: [
-          { left: "Gadi Eisenkot", leftValue: 45, right: "Benjamin Netanyahu", rightValue: 35 }
+          { left: "Gadi Eisenkot", leftValue: 44, right: "Benjamin Netanyahu", rightValue: 38, other: "Other or undecided", otherValue: 18 }
+        ]
+      },
+      {
+        date: "23 October 2026",
+        source: "KAN 11 / Kantar",
+        comparisons: [
+          { left: "Gadi Eisenkot", leftValue: 44, right: "Benjamin Netanyahu", rightValue: 38, other: "Other or undecided", otherValue: 18 }
+        ]
+      },
+      {
+        date: "23 October 2026",
+        source: "Maariv / Lazar Research",
+        comparisons: [
+          { left: "Gadi Eisenkot", leftValue: 49, right: "Benjamin Netanyahu", rightValue: 41, other: "Other or undecided", otherValue: 10 }
         ]
       }
     ],
-    note: "Head to head suitability for Prime Minister. Polls use different samples and methodologies and should be read separately."
+    note: "Preferred Prime Minister polling. Each poll is shown separately because samples and methodologies differ."
   }
 };
 
@@ -220,7 +220,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.7";
+  game.electionMeta.dataVersion = "5.8";
 
   game.electionMeta.seatPoll = {
     label: pop.label,

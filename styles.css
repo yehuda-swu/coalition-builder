@@ -764,6 +764,7 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 }
 .pmBar i{display:block;height:100%;background:var(--swu);border-radius:inherit}
 .pmBar.alt i{background:var(--gold)}
+.pmBar.other i{background:#8c9aa6}
 .pmPollNote{
   display:block;
   margin-top:7px;
