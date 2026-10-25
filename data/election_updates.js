@@ -83,7 +83,7 @@ window.ELECTION_UPDATES = {
       },
       {
         date: "23 October 2026",
-        source: "Maariv / Lazar Research",
+        source: "Maariv / Lazar",
         comparisons: [
           { left: "Gadi Eisenkot", leftValue: 49, right: "Benjamin Netanyahu", rightValue: 41, other: "Other or undecided", otherValue: 10 }
         ]
