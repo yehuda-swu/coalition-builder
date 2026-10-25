@@ -1,4 +1,4 @@
-const CACHE='61_preferred_pm_2026_10_25';
+const CACHE='61_classroom_workshop_cards_2026_10_25';
 const ASSETS=[
   './',
   'index.html',

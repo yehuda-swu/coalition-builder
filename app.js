@@ -491,6 +491,7 @@ function renderClassroom(){
     ${state.classStep==="policy"?classroomPolicyStage():""}
     ${state.classStep==="relationships"?classroomRelationshipStage():""}
     ${state.classStep==="leadership"?classroomLeadershipStage():""}
+    ${state.infoParty?partyPositionsPanel(activeParties().find(p=>p.id===state.infoParty)):""}
   </div></div>`;
   bindSharedEvents();
 }
@@ -510,6 +511,7 @@ function renderWorkshop(){
     ${state.classStep==="policy"?workshopPolicyStage():""}
     ${state.classStep==="relationships"?workshopRelationshipStage():""}
     ${state.classStep==="leadership"?workshopLeadershipStage():""}
+    ${state.infoParty?partyPositionsPanel(activeParties().find(p=>p.id===state.infoParty)):""}
   </div></div>`;
   bindSharedEvents();
 }
@@ -541,11 +543,16 @@ function workshopBuildStage(){
 
 function workshopPartyTile(p){
   const selected=state.selected.has(p.id);
-  return `<button class="workshopPartyTile ${selected?"selected":""}" data-party="${p.id}" style="--sector:${sectorColour(p.sector)}">
-    <div class="workshopSeat">${p.seats}</div>
-    <img src="${p.photo}" alt="${esc(p.leader)}">
-    <div><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
-  </button>`;
+  const ballot=ballotCards[p.id];
+  return `<article class="workshopPartyTile ${selected?"selected":""}" style="--sector:${sectorColour(p.sector)}">
+    <button class="workshopPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">
+      <img class="workshopLeaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">
+      ${ballot?`<img class="workshopBallotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}
+      <div class="workshopPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
+      <div class="workshopSeat">${p.seats}</div>
+    </button>
+    <button class="compactPositionsCue" data-party-info="${p.id}" type="button"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></button>
+  </article>`;
 }
 
 function workshopPolicyStage(){
@@ -793,11 +800,16 @@ function partyCard(p){
 }
 function classPartyTile(p){
   const selected=state.selected.has(p.id);
-  return `<button class="classPartyTile ${selected?"selected":""}" data-party="${p.id}" style="--sector:${sectorColour(p.sector)}">
-    <img src="${p.photo}" alt="${esc(p.leader)}">
-    <div class="classPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
-    <div class="classSeatCount">${p.seats}</div>
-  </button>`;
+  const ballot=ballotCards[p.id];
+  return `<article class="classPartyTile ${selected?"selected":""}" style="--sector:${sectorColour(p.sector)}">
+    <button class="classPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">
+      <img class="classLeaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">
+      ${ballot?`<img class="classBallotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}
+      <div class="classPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
+      <div class="classSeatCount">${p.seats}</div>
+    </button>
+    <button class="compactPositionsCue" data-party-info="${p.id}" type="button"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></button>
+  </article>`;
 }
 
 function coalitionSummaryPanel(){

@@ -1,0 +1,14 @@
+61: Build the Coalition
+25 October 2026
+
+CLASSROOM AND WORKSHOP PARTY CARD UPDATE
+
+Added to both Classroom Mode and Workshop Mode party cards:
+
+1. Party ballot card image
+2. View Positions button
+3. Full party positions pop up using the same five issue panel as Individual Mode
+
+The party selection action remains separate from View Positions, so opening a party profile does not add or remove that party from the coalition.
+
+Service worker cache refreshed for this update.
