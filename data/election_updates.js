@@ -13,86 +13,37 @@ Method:
 4. Take the whole number below each party's genuine average.
 5. Allocate the remaining seats by largest decimal remainder until the Knesset totals exactly 120 seats.
 
-This game Poll of Polls uses the latest available poll from:
+This game Poll of Polls uses the latest available poll from four independent polling sources:
 N12 / Channel 12
-i24NEWS
 KAN 11
+Channel 16 / 103FM
+i24NEWS
 
-The current source polls were published between 18 and 20 October 2026.
+The final source polls were published between 22 and 23 October 2026.
 */
 
 window.ELECTION_UPDATES = {
 
   pollOfPolls: {
-    label: "61 Poll of Polls",
-    updated: "21 October 2026",
-    methodology: "Equal average of the latest N12, i24NEWS and KAN 11 election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
+    label: "Final pre-election Poll of Polls",
+    updated: "25 October 2026",
+    methodology: "Equal average of the latest N12 / Midgam, KAN 11 / Kantar, Channel 16 / Maagar Mochot and i24NEWS / Direct Polls election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
     sources: [
-                        {
-        id: "channel12",
-        name: "N12 / Channel 12",
-        pollster: "Midgam",
-        date: "19 October 2026",
-        seats: {
-          likud: 21,
-          yashar: 24,
-          byachad: 14,
-          democrats: 9,
-          yisrael_beitenu: 8,
-          shas: 8,
-          otzma_yehudit: 8,
-          utj: 7,
-          joint_arab_list: 9,
-          raam: 5,
-          hatzionut_hadati: 7,
-          amcha_yisrael: 0,
-          reservists_economic: 0,
-          haredi_public: 0
-        }
+      {
+        id: "channel12", shortName: "N12", name: "N12 / Channel 12", pollster: "Midgam", date: "23 October 2026",
+        seats: {likud:21,yashar:23,byachad:15,democrats:10,yisrael_beitenu:8,shas:8,otzma_yehudit:8,utj:7,joint_arab_list:9,raam:5,hatzionut_hadati:6,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
       },
-                        {
-        id: "i24",
-        name: "i24NEWS",
-        pollster: "Direct Polls",
-        date: "20 October 2026",
-        seats: {
-          likud: 26,
-          yashar: 20,
-          byachad: 12,
-          democrats: 9,
-          yisrael_beitenu: 7,
-          shas: 8,
-          otzma_yehudit: 9,
-          utj: 8,
-          joint_arab_list: 8,
-          raam: 6,
-          hatzionut_hadati: 7,
-          amcha_yisrael: 0,
-          reservists_economic: 0,
-          haredi_public: 0
-        }
+      {
+        id: "kan11", shortName: "KAN 11", name: "KAN 11", pollster: "Kantar", date: "23 October 2026",
+        seats: {likud:20,yashar:22,byachad:14,democrats:8,yisrael_beitenu:8,shas:7,otzma_yehudit:8,utj:8,joint_arab_list:9,raam:5,hatzionut_hadati:7,amcha_yisrael:0,reservists_economic:4,haredi_public:0}
       },
-                        {
-        id: "kan11",
-        name: "KAN 11",
-        pollster: "Kantar",
-        date: "18 October 2026",
-        seats: {
-          likud: 21,
-          yashar: 23,
-          byachad: 12,
-          democrats: 9,
-          yisrael_beitenu: 8,
-          shas: 8,
-          otzma_yehudit: 8,
-          utj: 7,
-          joint_arab_list: 8,
-          raam: 5,
-          hatzionut_hadati: 7,
-          amcha_yisrael: 0,
-          reservists_economic: 4,
-          haredi_public: 0
-        }
+      {
+        id: "channel16", shortName: "Ch. 16", name: "Channel 16 / 103FM", pollster: "Maagar Mochot", date: "22 October 2026",
+        seats: {likud:17,yashar:20,byachad:14,democrats:9,yisrael_beitenu:7,shas:7,otzma_yehudit:9,utj:8,joint_arab_list:9,raam:5,hatzionut_hadati:7,amcha_yisrael:4,reservists_economic:4,haredi_public:0}
+      },
+      {
+        id: "i24", shortName: "i24", name: "i24NEWS", pollster: "Direct Polls", date: "23 October 2026",
+        seats: {likud:26,yashar:21,byachad:12,democrats:8,yisrael_beitenu:6,shas:8,otzma_yehudit:8,utj:7,joint_arab_list:9,raam:5,hatzionut_hadati:6,amcha_yisrael:4,reservists_economic:0,haredi_public:0}
       }
     ]
   },
@@ -269,13 +220,13 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.6";
+  game.electionMeta.dataVersion = "5.7";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
     date: pop.updated,
     source: sources.map(source => source.name).join(", "),
-    note: "Seat projections use the arithmetic mean of the included polls. Parties averaging fewer than 4 seats are treated as below the game threshold. Their seats are removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
+    note: "Final pre-election snapshot. Seat projections use the arithmetic mean of four independent polling sources. Parties averaging fewer than 4 seats are treated as below the game threshold, then qualifying parties are allocated exactly 120 seats using the largest remainder method.",
     sourceCount: sources.length
   };
 

@@ -384,12 +384,82 @@ function pollingSnapshotPanel(){
   </section>`;
 }
 
+
+function pollOfPollsTable(){
+  const detail=electionMeta?.pollOfPollsDetail;
+  if(!detail?.sources?.length) return "";
+  const finalSeats=detail.finalSeats||{}, averages=detail.rawAverage||{}, sources=detail.sources;
+
+  const rows=activeParties().map(p=>({
+    party:p,
+    average:typeof averages[p.id]==="number"?averages[p.id]:0,
+    final:typeof finalSeats[p.id]==="number"?finalSeats[p.id]:0
+  })).sort((a,b)=>{
+    const aq=a.average>=4,bq=b.average>=4;
+    if(aq!==bq) return aq?-1:1;
+    if(b.final!==a.final) return b.final-a.final;
+    if(b.average!==a.average) return b.average-a.average;
+    return a.party.name.localeCompare(b.party.name);
+  });
+
+  const qualifying=rows.filter(r=>r.average>=4), below=rows.filter(r=>r.average<4);
+  const sourceHead=sources.map(s=>`<th><span>${esc(s.shortName||s.name)}</span><small>${esc(s.date.replace(" October 2026"," Oct"))}</small></th>`).join("");
+
+  const renderRow=(row,belowThreshold=false)=>{
+    const sourceCells=sources.map(s=>{
+      const value=s.seats?.[row.party.id];
+      return `<td class="sourceSeat">${typeof value==="number"&&value>0?value:"—"}</td>`;
+    }).join("");
+    return `<tr class="${belowThreshold?"popBelow":""}">
+      <td class="popParty"><span class="popDot" style="background:${sectorColour(row.party.sector)}"></span><strong>${esc(row.party.name)}</strong></td>
+      ${sourceCells}
+      <td class="popAverage">${row.average.toFixed(2)}</td>
+      <td class="popFinal"><strong>${row.final}</strong></td>
+    </tr>`;
+  };
+
+  const headline=qualifying.slice(0,3).map((r,i)=>`
+    <div class="popHeadlineCard ${i===0?"leader":""}">
+      <span>${esc(r.party.name)}</span><strong>${r.final}</strong><small>seats</small>
+    </div>`).join("");
+
+  return `<section class="popPanel">
+    <div class="popTop">
+      <div>
+        <div class="pollEyebrow">Final pre-election snapshot</div>
+        <h2>61 Poll of Polls</h2>
+        <p>Four independent polling sources averaged equally. The final column is the seat allocation used in the game.</p>
+      </div>
+      <div class="popHeadline">${headline}</div>
+    </div>
+    <div class="popTableWrap">
+      <table class="popTable">
+        <thead><tr>
+          <th class="popPartyHead">Party</th>${sourceHead}
+          <th><span>Average</span><small>4 polls</small></th>
+          <th class="popFinalHead"><span>Game</span><small>seats</small></th>
+        </tr></thead>
+        <tbody>
+          ${qualifying.map(r=>renderRow(r)).join("")}
+          ${below.length?`<tr class="popThreshold"><td colspan="${sources.length+3}"><span>Below the game threshold</span><small>Average below 4 seats</small></td></tr>`:""}
+          ${below.map(r=>renderRow(r,true)).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="popFoot">
+      <span>Updated 25 October 2026</span>
+      <span>Qualifying parties are redistributed to exactly 120 seats using largest remainder.</span>
+    </div>
+  </section>`;
+}
+
 function renderIndividual(){
   const total=totalSeats(),filtered=state.sector==="All"?activeParties():activeParties().filter(p=>p.sector===state.sector),progress=Math.min(100,total/majority*100);
   app.innerHTML=`<div class="app"><div class="shell">
     ${commonTopbar("Individual Mode")}
     ${instructionsPanel()}
     ${pollingSnapshotPanel()}
+    ${pollOfPollsTable()}
     ${dashboard(total,progress)}
     ${relationshipAlert()}
     <section><div class="sectionHead"><div><h2>Political sectors</h2><p>Explore the parties and invite them into your coalition.</p></div></div>${sectorButtons()}</section>
@@ -411,6 +481,7 @@ function renderClassroom(){
     ${commonTopbar("Classroom Mode")}
     ${instructionsPanel()}
     ${pollingSnapshotPanel()}
+    ${pollOfPollsTable()}
     ${classroomStageHeader()}
     ${dashboard(total,progress)}
     ${state.classStep==="build"?classroomBuildStage():""}
@@ -429,6 +500,7 @@ function renderWorkshop(){
     ${commonTopbar("Workshop Mode")}
     ${instructionsPanel()}
     ${pollingSnapshotPanel()}
+    ${pollOfPollsTable()}
     ${workshopStageHeader()}
     ${dashboard(total,progress)}
     ${state.classStep==="build"?workshopBuildStage():""}

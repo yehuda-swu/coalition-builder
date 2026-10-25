@@ -1035,3 +1035,47 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 .partyIssueCopy{min-width:0}
 .partyIssueCopy small{display:block;margin:4px 18px 5px 0;color:var(--muted);font-size:.78rem;line-height:1.35;font-weight:600;max-width:560px}
 @media(max-width:620px){.partyIssueCopy small{font-size:.74rem;margin-right:8px}}
+
+
+/* Final pre-election Poll of Polls table */
+.popPanel{margin:0 0 18px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 28px rgba(15,53,82,.06)}
+.popTop{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin-bottom:13px}
+.popTop h2{margin:3px 0 0;color:var(--navy);font-size:1.18rem}
+.popTop p{margin:5px 0 0;color:var(--muted);font-size:.76rem;line-height:1.45;max-width:660px}
+.popHeadline{display:flex;gap:7px;flex:none}
+.popHeadlineCard{min-width:82px;padding:8px 10px;text-align:center;background:#f4f8fb;border:1px solid #dce7ee;border-radius:14px}
+.popHeadlineCard.leader{border-color:#9cc8e4;background:#edf7fd}
+.popHeadlineCard span{display:block;max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#4b6477;font-size:.65rem;font-weight:850}
+.popHeadlineCard strong{display:inline-block;margin-top:2px;color:var(--navy);font-size:1.22rem;line-height:1}
+.popHeadlineCard small{margin-left:3px;color:var(--muted);font-size:.58rem;font-weight:800}
+.popTableWrap{width:100%;overflow-x:auto;border:1px solid #dce7ee;border-radius:16px;-webkit-overflow-scrolling:touch}
+.popTable{width:100%;min-width:720px;border-collapse:separate;border-spacing:0;font-size:.76rem}
+.popTable th,.popTable td{padding:8px 9px;border-bottom:1px solid #e7eef3;text-align:center;background:#fff}
+.popTable th{background:#f2f7fa;color:var(--navy);font-size:.68rem;font-weight:950;white-space:nowrap}
+.popTable th span,.popTable th small{display:block}
+.popTable th small{margin-top:2px;color:#7a8b98;font-size:.55rem;font-weight:750}
+.popTable tbody tr:last-child td{border-bottom:0}
+.popPartyHead,.popParty{position:sticky;left:0;z-index:2;text-align:left!important;min-width:190px}
+.popPartyHead{z-index:4!important;background:#f2f7fa!important}
+.popParty{display:table-cell;color:var(--navy)}
+.popParty strong{vertical-align:middle}
+.popDot{display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%;vertical-align:middle}
+.sourceSeat{font-weight:800;color:#3f5667}
+.popAverage{background:#f8fafc!important;color:#52697a;font-variant-numeric:tabular-nums}
+.popFinal,.popFinalHead{background:#eaf5fb!important;color:var(--navy)!important}
+.popFinal strong{font-size:.95rem}
+.popThreshold td{padding:7px 12px;text-align:left;background:#eef2f5!important;border-bottom:1px solid #d8e0e6}
+.popThreshold span{color:#536878;font-size:.68rem;font-weight:950;text-transform:uppercase;letter-spacing:.06em}
+.popThreshold small{margin-left:8px;color:#7d8d99;font-size:.62rem}
+.popBelow td{background:#fafbfc;color:#8996a0}
+.popBelow .popParty{background:#fafbfc!important}
+.popBelow .popFinal{background:#f2f4f6!important;color:#8996a0!important}
+.popFoot{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:#718390;font-size:.62rem;line-height:1.4}
+@media(max-width:760px){
+  .popPanel{padding:12px}
+  .popTop{display:block}
+  .popHeadline{margin-top:10px;display:grid;grid-template-columns:repeat(3,1fr)}
+  .popHeadlineCard{min-width:0}
+  .popFoot{display:block}
+  .popFoot span{display:block;margin-top:3px}
+}
