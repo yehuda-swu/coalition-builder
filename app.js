@@ -15,7 +15,7 @@ const state = {
 const app=document.getElementById("app");
 
 function activeParties(){return parties.filter(p=>p.active!==false)}
-function chosen(){return activeParties().filter(p=>state.selected.has(p.id))}
+function chosen(){return activeParties().filter(p=>!p.failedThreshold && state.selected.has(p.id))}
 
 function hasJointArabList(){
   return state.selected.has("joint_arab_list");
@@ -341,6 +341,7 @@ function instructionsPanel(){
 function pollingSnapshotPanel(){
   const seat=electionMeta?.seatPoll;
   const pm=electionMeta?.preferredPM;
+  const isCurrentCount=seat?.kind==="current_count";
   const polls=pm?.polls || (pm?.comparisons ? [{
     source:pm.source,
     date:pm.date,
@@ -369,11 +370,11 @@ function pollingSnapshotPanel(){
   }).join("");
 
   return `<section class="pollingStrip">
-    <div class="seatPollMeta">
-      <div class="pollEyebrow">Election Night Exit Polls</div>
+    <div class="seatPollMeta ${isCurrentCount?"currentCountMeta":""}">
+      <div class="pollEyebrow">${isCurrentCount?"Provisional count update":"Election Night Exit Polls"}</div>
       <strong>${esc(seat?.label||"Polling scenario")}</strong>
       <span>${esc(seat?.date||"")} · ${esc(seat?.source||"")}</span>
-      <small>${esc(seat?.note||"")}</small>
+      <small class="${isCurrentCount?"countNotice":""}">${esc(seat?.note||"")}</small>
     </div>
     <div class="pmPollArea">
       <div class="pmPollHead">
@@ -391,18 +392,71 @@ function pollOfPollsTable(){
   const detail=electionMeta?.pollOfPollsDetail;
   if(!detail?.sources?.length) return "";
   const finalSeats=detail.finalSeats||{}, averages=detail.rawAverage||{}, sources=detail.sources;
+  const isCurrentCount=detail.mode==="current_count";
+
+  const displayOrder=detail.displayOrder||[];
+  const orderIndex=new Map(displayOrder.map((id,index)=>[id,index]));
 
   const rows=activeParties().map(p=>({
     party:p,
     average:typeof averages[p.id]==="number"?averages[p.id]:0,
     final:typeof finalSeats[p.id]==="number"?finalSeats[p.id]:0
   })).sort((a,b)=>{
+    if(isCurrentCount && orderIndex.size){
+      const ai=orderIndex.has(a.party.id)?orderIndex.get(a.party.id):999;
+      const bi=orderIndex.has(b.party.id)?orderIndex.get(b.party.id):999;
+      if(ai!==bi) return ai-bi;
+    }
     const aq=a.average>=4,bq=b.average>=4;
     if(aq!==bq) return aq?-1:1;
     if(b.final!==a.final) return b.final-a.final;
     if(b.average!==a.average) return b.average-a.average;
     return a.party.name.localeCompare(b.party.name);
   });
+
+  if(isCurrentCount){
+    const rowById=new Map(rows.map(r=>[r.party.id,r]));
+    const headlineIds=(detail.headlinePartyIds||[]).length?detail.headlinePartyIds:rows.slice(0,3).map(r=>r.party.id);
+    const headline=headlineIds.map((id,i)=>{
+      const r=rowById.get(id);
+      if(!r) return "";
+      return `<div class="popHeadlineCard ${i===0?"leader":""}">
+        <span>${esc(r.party.name)}</span><strong>${r.final}</strong><small>seats</small>
+      </div>`;
+    }).join("");
+
+    const tableRows=rows.map(row=>`<tr>
+      <td class="popParty"><span class="popDot" style="background:${sectorColour(row.party.sector)}"></span><strong>${esc(row.party.name)}</strong></td>
+      <td class="popFinal"><strong>${row.final}</strong></td>
+    </tr>`).join("");
+
+    const failed=(detail.failedThreshold||[]).join(", ");
+
+    return `<section class="popPanel currentCountPanel">
+      <div class="popTop">
+        <div>
+          <div class="pollEyebrow">Provisional count update</div>
+          <h2>Current Seat Count</h2>
+          <p>Seat allocation after all votes cast on 27 October have been counted. Double envelopes are still outstanding.</p>
+        </div>
+        <div class="popHeadline">${headline}</div>
+      </div>
+      <div class="countAlert"><strong>${esc(detail.notice||"")}</strong></div>
+      <div class="popTableWrap currentCountTableWrap">
+        <table class="popTable currentCountTable">
+          <thead><tr>
+            <th class="popPartyHead">Party</th>
+            <th class="popFinalHead"><span>Current count</span><small>seats</small></th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+      <div class="popFoot">
+        <span>Count update · 28 October 2026</span>
+        <span>${failed?`Failed to cross the threshold: ${esc(failed)}.`:""}</span>
+      </div>
+    </section>`;
+  }
 
   const qualifying=rows.filter(r=>r.average>=4), below=rows.filter(r=>r.average<4);
   const sourceHead=sources.map(s=>`<th><span>${esc(s.shortName||s.name)}</span><small>${esc(s.date.replace(" October 2026"," Oct"))}</small></th>`).join("");
@@ -454,6 +508,7 @@ function pollOfPollsTable(){
     </div>
   </section>`;
 }
+
 
 function renderIndividual(){
   const total=totalSeats(),filtered=state.sector==="All"?activeParties():activeParties().filter(p=>p.sector===state.sector),progress=Math.min(100,total/majority*100);
@@ -542,16 +597,18 @@ function workshopBuildStage(){
 }
 
 function workshopPartyTile(p){
-  const selected=state.selected.has(p.id);
+  const failed=!!p.failedThreshold;
+  const selected=!failed && state.selected.has(p.id);
   const ballot=ballotCards[p.id];
-  return `<article class="workshopPartyTile ${selected?"selected":""}" style="--sector:${sectorColour(p.sector)}">
-    <button class="workshopPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">
+  return `<article class="workshopPartyTile ${selected?"selected":""} ${failed?"failedThresholdParty":""}" style="--sector:${sectorColour(p.sector)}">
+    ${failed?`<div class="workshopPartySelect thresholdPartyStatic" aria-label="${esc(p.name)} failed to cross threshold">`:`<button class="workshopPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">`}
       <img class="workshopLeaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">
       ${ballot?`<img class="workshopBallotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}
       <div class="workshopPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
       <div class="workshopSeat">${p.seats}</div>
-    </button>
+    ${failed?`</div>`:`</button>`}
     <button class="compactPositionsCue" data-party-info="${p.id}" type="button"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></button>
+    ${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:""}
   </article>`;
 }
 
@@ -794,21 +851,24 @@ const ballotCards={
 };
 
 function partyCard(p){
-  const selected=state.selected.has(p.id);
+  const failed=!!p.failedThreshold;
+  const selected=!failed && state.selected.has(p.id);
   const ballot=ballotCards[p.id];
-  return `<article class="partyCard ${selected?"selected":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">${ballot?`<img class="ballotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}<div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div><button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button></div></article>`;
+  return `<article class="partyCard ${selected?"selected":""} ${failed?"failedThresholdParty":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">${ballot?`<img class="ballotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}<div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div>${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:`<button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button>`}</div></article>`;
 }
 function classPartyTile(p){
-  const selected=state.selected.has(p.id);
+  const failed=!!p.failedThreshold;
+  const selected=!failed && state.selected.has(p.id);
   const ballot=ballotCards[p.id];
-  return `<article class="classPartyTile ${selected?"selected":""}" style="--sector:${sectorColour(p.sector)}">
-    <button class="classPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">
+  return `<article class="classPartyTile ${selected?"selected":""} ${failed?"failedThresholdParty":""}" style="--sector:${sectorColour(p.sector)}">
+    ${failed?`<div class="classPartySelect thresholdPartyStatic" aria-label="${esc(p.name)} failed to cross threshold">`:`<button class="classPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">`}
       <img class="classLeaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">
       ${ballot?`<img class="classBallotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}
       <div class="classPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
       <div class="classSeatCount">${p.seats}</div>
-    </button>
+    ${failed?`</div>`:`</button>`}
     <button class="compactPositionsCue" data-party-info="${p.id}" type="button"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></button>
+    ${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:""}
   </article>`;
 }
 
@@ -991,7 +1051,7 @@ function bindSharedEvents(){
   document.getElementById("resetBtn").addEventListener("click",resetGame);
   document.getElementById("switchModeBtn").addEventListener("click",()=>{state.stage="welcome";state.mode=null;state.selected.clear();state.policyDecisions={};state.classStep="build";state.minorityMode=false;render();});
   document.querySelectorAll("[data-sector]").forEach(b=>b.addEventListener("click",()=>{state.sector=b.dataset.sector;render();}));
-  document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",(event)=>{event.stopPropagation();const id=b.dataset.party;state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();}));
+  document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",(event)=>{event.stopPropagation();const id=b.dataset.party;const party=activeParties().find(p=>p.id===id);if(party?.failedThreshold){state.selected.delete(id);render();return;}state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();}));
   document.querySelectorAll("[data-party-info]").forEach(card=>{const open=()=>{state.infoParty=card.dataset.partyInfo;render();};card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});});
   document.getElementById("partyInfoClose")?.addEventListener("click",()=>{state.infoParty=null;render();});
   document.getElementById("partyInfoBackdrop")?.addEventListener("click",e=>{if(e.target.id==="partyInfoBackdrop"){state.infoParty=null;render();}});

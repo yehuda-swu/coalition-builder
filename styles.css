@@ -987,6 +987,13 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 }
 .compactPositionsCue:hover{background:var(--navy);color:#fff}
 
+/* Parties that failed to cross the electoral threshold */
+.failedThresholdParty{opacity:.82}
+.failedThresholdParty .seatBadge,.failedThresholdParty .classSeatCount,.failedThresholdParty .workshopSeat{background:#7a8793}
+.thresholdPartyStatic{cursor:default}
+.thresholdFailureNote{width:100%;margin-top:8px;border:1.5px solid #c74a4a;border-radius:10px;background:#fff2f2;color:#9f2525;padding:9px 10px;text-align:center;font-size:.72rem;font-weight:950;letter-spacing:.035em;line-height:1.2}
+.partyCard .thresholdFailureNote{margin-top:0;padding:10px 12px;font-size:.76rem}
+
 /* Ballot cards on party profiles */
 .ballotCard{position:absolute;right:8px;top:62px;width:96px;height:118px;object-fit:contain;z-index:2;pointer-events:none;filter:drop-shadow(0 5px 7px rgba(0,0,0,.18))}
 .partyLogoWrap{z-index:2}
@@ -1098,4 +1105,37 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
   .popHeadlineCard{min-width:0}
   .popFoot{display:block}
   .popFoot span{display:block;margin-top:3px}
+}
+
+/* 28 October provisional count update */
+.currentCountMeta .countNotice{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:#eef7fd;
+  border:1px solid #c8dfef;
+  color:var(--navy);
+  font-weight:800;
+  line-height:1.45;
+}
+.currentCountPanel .countAlert{
+  margin:14px 0 16px;
+  padding:13px 15px;
+  border:1px solid #b9d7ea;
+  border-radius:14px;
+  background:#eef7fd;
+  color:var(--navy);
+  font-size:.82rem;
+  line-height:1.5;
+}
+.currentCountTableWrap{
+  max-width:760px;
+}
+.currentCountTable th:last-child,
+.currentCountTable td:last-child{
+  width:190px;
+  text-align:center;
+}
+.currentCountTable .popFinal strong{
+  font-size:1.2rem;
 }

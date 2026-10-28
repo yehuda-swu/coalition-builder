@@ -1,0 +1,23 @@
+61: BUILD THE COALITION
+28 October 2026 provisional count update
+
+Current seat allocation:
+Likud 26
+Yashar 21
+Joint Arab List 12
+B'Yachad 12
+The Democrats 8
+Yisrael Beiteinu 7
+Ra'am 7
+UTJ 7
+Otzma Yehudit 7
+Shas 7
+Hatzionut HaDatit 6
+
+The seat total is 120.
+
+Count notice shown in the game:
+Update after 100% of 27th October votes have been counted, 85.6% of the entire vote. We are still waiting the counting of “double envelopes” (Serving soldiers, Emissaries, and others) of which there are estimated 600,000 ballots. This is not the final result.
+
+Threshold treatment:
+Amcha Yisrael, Reservists Economic and The Haredi Public remain visible in every game mode for educational context. Each has 0 seats and cannot be invited into a coalition. Their coalition action is replaced by FAILED TO CROSS THRESHOLD. View Positions and the party ballot card remain available.
