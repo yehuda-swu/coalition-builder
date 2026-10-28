@@ -25,25 +25,29 @@ The final source polls were published between 22 and 23 October 2026.
 window.ELECTION_UPDATES = {
 
   pollOfPolls: {
-    label: "Final pre-election Poll of Polls",
-    updated: "25 October 2026",
-    methodology: "Equal average of the latest N12 / Midgam, KAN 11 / Kantar, Channel 16 / Maagar Mochot and i24NEWS / Direct Polls election polls. Parties averaging fewer than 4 seats are treated as below the game threshold and removed before the remaining parties are allocated exactly 120 seats using the largest remainder method.",
+    label: "Combined Exit Polls",
+    updated: "27 October 2026",
+    methodology: "Equal average of the 22:00 exit polls published by N12 / Midgam, KAN 11 / Kantar, Channel 13 / HaMadad, i24NEWS / Direct Polls and Channel 14 / Next Data. The combined game seats are allocated from the genuine five poll averages using the largest remainder method so the Knesset totals exactly 120 seats.",
     sources: [
       {
-        id: "channel12", shortName: "N12", name: "N12 / Channel 12", pollster: "Midgam", date: "23 October 2026",
-        seats: {likud:21,yashar:23,byachad:15,democrats:10,yisrael_beitenu:8,shas:8,otzma_yehudit:8,utj:7,joint_arab_list:9,raam:5,hatzionut_hadati:6,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
+        id: "channel12", shortName: "N12", name: "N12 / Channel 12", pollster: "Midgam", date: "27 October 2026",
+        seats: {likud:24,yashar:22,byachad:12,democrats:9,yisrael_beitenu:9,shas:8,otzma_yehudit:6,utj:6,joint_arab_list:11,raam:7,hatzionut_hadati:6,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
       },
       {
-        id: "kan11", shortName: "KAN 11", name: "KAN 11", pollster: "Kantar", date: "23 October 2026",
-        seats: {likud:20,yashar:22,byachad:14,democrats:8,yisrael_beitenu:8,shas:7,otzma_yehudit:8,utj:8,joint_arab_list:9,raam:5,hatzionut_hadati:7,amcha_yisrael:0,reservists_economic:4,haredi_public:0}
+        id: "kan11", shortName: "KAN 11", name: "KAN 11", pollster: "Kantar", date: "27 October 2026",
+        seats: {likud:25,yashar:21,byachad:14,democrats:10,yisrael_beitenu:8,shas:6,otzma_yehudit:7,utj:6,joint_arab_list:10,raam:7,hatzionut_hadati:6,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
       },
       {
-        id: "channel16", shortName: "Ch. 16", name: "Channel 16 / 103FM", pollster: "Maagar Mochot", date: "22 October 2026",
-        seats: {likud:17,yashar:20,byachad:14,democrats:9,yisrael_beitenu:7,shas:7,otzma_yehudit:9,utj:8,joint_arab_list:9,raam:5,hatzionut_hadati:7,amcha_yisrael:4,reservists_economic:4,haredi_public:0}
+        id: "channel13", shortName: "Ch. 13", name: "Channel 13 News", pollster: "HaMadad", date: "27 October 2026",
+        seats: {likud:25,yashar:23,byachad:14,democrats:9,yisrael_beitenu:7,shas:6,otzma_yehudit:6,utj:7,joint_arab_list:10,raam:7,hatzionut_hadati:6,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
       },
       {
-        id: "i24", shortName: "i24", name: "i24NEWS", pollster: "Direct Polls", date: "23 October 2026",
-        seats: {likud:26,yashar:21,byachad:12,democrats:8,yisrael_beitenu:6,shas:8,otzma_yehudit:8,utj:7,joint_arab_list:9,raam:5,hatzionut_hadati:6,amcha_yisrael:4,reservists_economic:0,haredi_public:0}
+        id: "i24", shortName: "i24", name: "i24NEWS", pollster: "Direct Polls", date: "27 October 2026",
+        seats: {likud:27,yashar:20,byachad:15,democrats:9,yisrael_beitenu:5,shas:8,otzma_yehudit:7,utj:7,joint_arab_list:9,raam:7,hatzionut_hadati:6,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
+      },
+      {
+        id: "channel14", shortName: "Ch. 14", name: "Channel 14", pollster: "Next Data", date: "27 October 2026",
+        seats: {likud:30,yashar:19,byachad:11,democrats:9,yisrael_beitenu:4,shas:9,otzma_yehudit:7,utj:7,joint_arab_list:10,raam:7,hatzionut_hadati:7,amcha_yisrael:0,reservists_economic:0,haredi_public:0}
       }
     ]
   },
@@ -220,13 +224,13 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "5.8";
+  game.electionMeta.dataVersion = "6.0";
 
   game.electionMeta.seatPoll = {
     label: pop.label,
     date: pop.updated,
     source: sources.map(source => source.name).join(", "),
-    note: "Final pre-election snapshot. Seat projections use the arithmetic mean of four independent polling sources. Parties averaging fewer than 4 seats are treated as below the game threshold, then qualifying parties are allocated exactly 120 seats using the largest remainder method.",
+    note: "Election night exit poll snapshot. Five broadcaster exit polls are averaged equally, then seats are allocated to exactly 120 using the largest remainder method.",
     sourceCount: sources.length
   };
 
@@ -240,7 +244,7 @@ DO NOT EDIT BELOW THIS LINE
     sources,
     rawAverage,
     finalSeats: finalById,
-    allocationMethod: "4-seat game threshold, then largest remainder method"
+    allocationMethod: "Five poll average, then largest remainder method"
   };
 
 })();

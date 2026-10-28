@@ -370,7 +370,7 @@ function pollingSnapshotPanel(){
 
   return `<section class="pollingStrip">
     <div class="seatPollMeta">
-      <div class="pollEyebrow">61 Poll of Polls</div>
+      <div class="pollEyebrow">Election Night Exit Polls</div>
       <strong>${esc(seat?.label||"Polling scenario")}</strong>
       <span>${esc(seat?.date||"")} · ${esc(seat?.source||"")}</span>
       <small>${esc(seat?.note||"")}</small>
@@ -428,9 +428,9 @@ function pollOfPollsTable(){
   return `<section class="popPanel">
     <div class="popTop">
       <div>
-        <div class="pollEyebrow">Final pre-election snapshot</div>
-        <h2>61 Poll of Polls</h2>
-        <p>Four independent polling sources averaged equally. The final column is the seat allocation used in the game.</p>
+        <div class="pollEyebrow">Election night exit polls</div>
+        <h2>Combined Exit Polls</h2>
+        <p>Five broadcasters shown separately. The final column is the combined seat allocation used in the game.</p>
       </div>
       <div class="popHeadline">${headline}</div>
     </div>
@@ -438,8 +438,8 @@ function pollOfPollsTable(){
       <table class="popTable">
         <thead><tr>
           <th class="popPartyHead">Party</th>${sourceHead}
-          <th><span>Average</span><small>4 polls</small></th>
-          <th class="popFinalHead"><span>Game</span><small>seats</small></th>
+          <th><span>Average</span><small>5 polls</small></th>
+          <th class="popFinalHead"><span>Combined</span><small>seats</small></th>
         </tr></thead>
         <tbody>
           ${qualifying.map(r=>renderRow(r)).join("")}
@@ -449,8 +449,8 @@ function pollOfPollsTable(){
       </table>
     </div>
     <div class="popFoot">
-      <span>Updated 25 October 2026</span>
-      <span>Qualifying parties are redistributed to exactly 120 seats using largest remainder.</span>
+      <span>Exit polls published 27 October 2026</span>
+      <span>Five exit polls are averaged equally and allocated to exactly 120 seats using largest remainder.</span>
     </div>
   </section>`;
 }

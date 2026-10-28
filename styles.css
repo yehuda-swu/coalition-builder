@@ -1057,7 +1057,7 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 @media(max-width:620px){.partyIssueCopy small{font-size:.74rem;margin-right:8px}}
 
 
-/* Final pre-election Poll of Polls table */
+/* Combined exit polls table */
 .popPanel{margin:0 0 18px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 10px 28px rgba(15,53,82,.06)}
 .popTop{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;margin-bottom:13px}
 .popTop h2{margin:3px 0 0;color:var(--navy);font-size:1.18rem}
