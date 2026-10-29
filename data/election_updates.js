@@ -5,11 +5,9 @@ ELECTION UPDATE
 CURRENT COUNT SNAPSHOT
 
 This update replaces the election night exit poll seat allocation with the
-first completed round of counting from votes cast on 27 October 2026.
+latest provisional count available on 29 October 2026.
 
-100% of 27 October votes have been counted, representing 85.6% of the entire
-vote. Double envelopes from serving soldiers, emissaries and others remain to
-be counted. An estimated 600,000 ballots are still outstanding.
+Approximately 94.4% of votes have been counted. Counting is still ongoing.
 
 This is not the final result.
 */
@@ -19,28 +17,28 @@ window.ELECTION_UPDATES = {
   pollOfPolls: {
     mode: "current_count",
     label: "Current Seat Count",
-    updated: "28 October 2026",
-    methodology: "Current count snapshot after 100% of votes cast on 27 October have been counted. No averaging or seat redistribution is applied because the reported seats already total 120.",
-    notice: "Update after 100% of 27th October votes have been counted, 85.6% of the entire vote. We are still waiting the counting of “double envelopes” (Serving soldiers, Emissaries, and others) of which there are estimated 600,000 ballots. This is not the final result.",
-    displayOrder: ["likud","yashar","joint_arab_list","byachad","democrats","yisrael_beitenu","raam","utj","otzma_yehudit","shas","hatzionut_hadati"],
-    headlinePartyIds: ["likud","yashar","joint_arab_list"],
+    updated: "29 October 2026, 11:09:16 AM",
+    methodology: "Current count snapshot with approximately 94.4% of votes counted. No averaging or seat redistribution is applied because the reported seats already total 120.",
+    notice: "Updated: October 29, 2026, at 11:09:16 AM. Approximately 94.4% of votes counted. Counting is still ongoing. This is not the final result.",
+    displayOrder: ["likud","yashar","byachad","joint_arab_list","democrats","raam","yisrael_beitenu","otzma_yehudit","utj","shas","hatzionut_hadati"],
+    headlinePartyIds: ["likud","yashar","byachad"],
     failedThreshold: ["Amcha Yisrael","Reservists-Economic","The Haredi Public"],
     failedThresholdPartyIds: ["amcha_yisrael","reservists_economic","haredi_public"],
     sources: [
       {
         id: "current_count",
         shortName: "Count",
-        name: "27 October vote count",
+        name: "Current vote count",
         pollster: "Current count snapshot",
-        date: "28 October 2026",
+        date: "29 October 2026, 11:09:16 AM",
         seats: {
           likud:26,
           yashar:21,
-          joint_arab_list:12,
+          joint_arab_list:11,
           byachad:12,
           democrats:8,
           yisrael_beitenu:7,
-          raam:7,
+          raam:8,
           utj:7,
           otzma_yehudit:7,
           shas:7,
@@ -228,7 +226,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "6.2";
+  game.electionMeta.dataVersion = "6.3";
 
   game.electionMeta.seatPoll = {
     kind: pop.mode || "polling",

@@ -437,7 +437,7 @@ function pollOfPollsTable(){
         <div>
           <div class="pollEyebrow">Provisional count update</div>
           <h2>Current Seat Count</h2>
-          <p>Seat allocation after all votes cast on 27 October have been counted. Double envelopes are still outstanding.</p>
+          <p>Approximately 94.4% of votes have been counted. Counting is still ongoing.</p>
         </div>
         <div class="popHeadline">${headline}</div>
       </div>
@@ -452,7 +452,7 @@ function pollOfPollsTable(){
         </table>
       </div>
       <div class="popFoot">
-        <span>Count update · 28 October 2026</span>
+        <span>Count update · 29 October 2026 · 11:09:16 AM</span>
         <span>${failed?`Failed to cross the threshold: ${esc(failed)}.`:""}</span>
       </div>
     </section>`;
