@@ -102,10 +102,10 @@ window.GAME_DATA = {
         security:{stance:"Support",strength:"Flexible"},
         inquiry:{stance:"Support",strength:"Flexible"},
         judicial:{stance:"Oppose",strength:"Flexible"},
-        arab:{stance:"Oppose",strength:"Flexible"},
+        arab:{stance:"Flexible",strength:"Flexible"},
         charedi:{stance:"Support",strength:"Red line"}
       },
-      veto:["utj","shas","raam","joint_arab_list"]
+      veto:["utj","shas","joint_arab_list"]
     },
     {
       id:"amcha_yisrael", active:true, name:"Amcha Yisrael", leader:"Ofer Winter", seats:5, sector:"Right",

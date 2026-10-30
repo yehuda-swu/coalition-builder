@@ -46,41 +46,41 @@ function minorityScenario(){
   const largest=[...selected].sort((a,b)=>b.seats-a.seats)[0];
   const yasharLed=largest?.id==="yashar" && !state.selected.has("likud");
 
-  // Post election minority route, updated 30 October 2026.
-  // Joint List may provide outside support but is not treated as a coalition member.
-  // Ra'am may be inside government or provide outside support.
-  // A reported UTJ abstention can reduce the number voting against the government.
-  // Yisrael Beitenu blocks this route because Liberman has rejected a minority
-  // government that relies directly or indirectly on Arab parties.
-  const baseAvailable=total<majority && yasharLed && !jointInside;
-  const libermanBlock=baseAvailable && libermanInside;
-  const shasBlock=baseAvailable && shasInside;
-  const available=baseAvailable && !libermanBlock && !shasBlock;
+  // Post election minority route, corrected 30 October 2026.
+  // Joint List is treated as possible outside support, not a coalition member.
+  // Yisrael Beitenu blocks Joint List cooperation, but Ra'am is not an automatic veto.
+  // UTJ's reported role in this scenario is abstention from outside government.
+  const baseAvailable=total<majority && yasharLed && !jointInside && !shasInside && !utjInside;
 
-  const jointExternalSupport=available ? (joint?.seats||0) : 0;
-  const raamExternalSupport=available && !raamInside ? (raam?.seats||0) : 0;
+  const jointExternalSupport=baseAvailable && !libermanInside ? (joint?.seats||0) : 0;
+  const raamExternalSupport=baseAvailable && !raamInside ? (raam?.seats||0) : 0;
   const yesBeforeAbstention=total+jointExternalSupport+raamExternalSupport;
-  const noBeforeAbstention=available ? 120-yesBeforeAbstention : 120-total;
-  const needsUtjAbstention=available && !utjInside && yesBeforeAbstention<=noBeforeAbstention;
+  const noBeforeAbstention=baseAvailable ? 120-yesBeforeAbstention : 120-total;
+  const needsUtjAbstention=baseAvailable && yesBeforeAbstention<=noBeforeAbstention;
   const utjAbstentions=needsUtjAbstention ? (utj?.seats||0) : 0;
   const yes=yesBeforeAbstention;
-  const no=available ? 120-yes-utjAbstentions : 120-total;
+  const no=baseAvailable ? 120-yes-utjAbstentions : 120-total;
+  const passes=baseAvailable && yes>no;
 
   let reason="";
-  if(total<majority && !available){
+  if(total<majority && !passes){
     if(jointInside){
-      reason="Joint Arab List may support an anti Netanyahu government from outside, but it is not offering to formally join the coalition.";
-    }else if(libermanBlock){
-      reason="Yisrael Beitenu has ruled out a minority government that relies directly or indirectly on Arab parties, so this route cannot include Avigdor Liberman's party.";
-    }else if(shasBlock){
-      reason="Shas has ruled out an Eisenkot led government without Likud, so it cannot be used to unlock this minority government route.";
+      reason="The Joint List is being treated as outside support only, not as a formal coalition member.";
+    }else if(utjInside){
+      reason="In this reported minority government scenario, UTJ would remain outside government and abstain rather than join the coalition.";
+    }else if(shasInside){
+      reason="Shas is not part of the reported Eisenkot minority government route.";
     }else if(!yasharLed){
       reason=`This ${total} seat coalition cannot use the post election minority government route. It must be Yashar led and cannot include Likud.`;
+    }else if(libermanInside){
+      reason=`Yisrael Beiteinu has rejected cooperation with the Joint List. Ra'am remains a possible but unconfirmed partner. With this combination, even allowing Ra'am support and ${utjAbstentions||7} UTJ abstentions, the confidence arithmetic is ${yes} in favour to ${no} against, so the government still falls short.`;
+    }else{
+      reason=`Even with possible outside support from the Joint List and Ra'am, plus the reported UTJ abstention, this combination would be ${yes} votes in favour to ${no} against.`;
     }
   }
 
   return {
-    available,
+    available:baseAvailable,
     yasharLed,
     raamInside,
     jointExternalSupport,
@@ -89,12 +89,12 @@ function minorityScenario(){
     utjAbstentions,
     abstentions:utjAbstentions,
     needsUtjAbstention,
-    libermanBlock,
-    shasBlock,
+    libermanBlock:libermanInside && jointExternalSupport===0,
+    shasBlock:shasInside,
     yes,
     no,
     reason,
-    passes:available&&yes>no
+    passes
   };
 }
 function sectorColour(name){return (sectors.find(s=>s.name===name)||sectors[0]).colour}
@@ -625,17 +625,18 @@ function workshopBuildStage(){
 
 function workshopPartyTile(p){
   const failed=!!p.failedThreshold;
-  const selected=!failed && state.selected.has(p.id);
+  const supportOnly=p.coalitionEligible===false;
+  const selected=!failed && !supportOnly && state.selected.has(p.id);
   const ballot=ballotCards[p.id];
-  return `<article class="workshopPartyTile ${selected?"selected":""} ${failed?"failedThresholdParty":""}" style="--sector:${sectorColour(p.sector)}">
-    ${failed?`<div class="workshopPartySelect thresholdPartyStatic" aria-label="${esc(p.name)} failed to cross threshold">`:`<button class="workshopPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">`}
+  return `<article class="workshopPartyTile ${selected?"selected":""} ${failed?"failedThresholdParty":""} ${supportOnly?"supportOnlyParty":""}" style="--sector:${sectorColour(p.sector)}">
+    ${failed||supportOnly?`<div class="workshopPartySelect thresholdPartyStatic" aria-label="${esc(p.name)} ${failed?"failed to cross threshold":"outside support only"}">`:`<button class="workshopPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">`}
       <img class="workshopLeaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">
       ${ballot?`<img class="workshopBallotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}
       <div class="workshopPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
       <div class="workshopSeat">${p.seats}</div>
-    ${failed?`</div>`:`</button>`}
+    ${failed||supportOnly?`</div>`:`</button>`}
     <button class="compactPositionsCue" data-party-info="${p.id}" type="button"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></button>
-    ${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:""}
+    ${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:supportOnly?`<div class="supportOnlyNote">OUTSIDE SUPPORT ONLY</div>`:""}
   </article>`;
 }
 
@@ -879,23 +880,25 @@ const ballotCards={
 
 function partyCard(p){
   const failed=!!p.failedThreshold;
-  const selected=!failed && state.selected.has(p.id);
+  const supportOnly=p.coalitionEligible===false;
+  const selected=!failed && !supportOnly && state.selected.has(p.id);
   const ballot=ballotCards[p.id];
-  return `<article class="partyCard ${selected?"selected":""} ${failed?"failedThresholdParty":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">${ballot?`<img class="ballotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}<div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div>${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:`<button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button>`}</div></article>`;
+  return `<article class="partyCard ${selected?"selected":""} ${failed?"failedThresholdParty":""} ${supportOnly?"supportOnlyParty":""}" data-party-info="${p.id}" tabindex="0" role="button" style="--sector:${sectorColour(p.sector)}"><div class="cardMedia"><img class="leaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">${ballot?`<img class="ballotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}<div class="partyLogoWrap"><img class="partyLogo" src="${p.logo}" alt="${esc(p.name)} logo"></div><div class="seatBadge">${p.seats}<span>seats</span></div></div><div class="partyBody"><div class="partyName">${esc(p.name)}</div><div class="leader">${esc(p.leader)}</div><span class="sectorPill" style="background:${sectorColour(p.sector)}">${esc(p.sector)}</span><div class="viewPositionsCue"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></div>${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:supportOnly?`<div class="supportOnlyNote">OUTSIDE SUPPORT ONLY</div>`:`<button class="selectBtn" data-party="${p.id}">${selected?"Remove from coalition":"Invite to coalition"}</button>`}</div></article>`;
 }
 function classPartyTile(p){
   const failed=!!p.failedThreshold;
-  const selected=!failed && state.selected.has(p.id);
+  const supportOnly=p.coalitionEligible===false;
+  const selected=!failed && !supportOnly && state.selected.has(p.id);
   const ballot=ballotCards[p.id];
-  return `<article class="classPartyTile ${selected?"selected":""} ${failed?"failedThresholdParty":""}" style="--sector:${sectorColour(p.sector)}">
-    ${failed?`<div class="classPartySelect thresholdPartyStatic" aria-label="${esc(p.name)} failed to cross threshold">`:`<button class="classPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">`}
+  return `<article class="classPartyTile ${selected?"selected":""} ${failed?"failedThresholdParty":""} ${supportOnly?"supportOnlyParty":""}" style="--sector:${sectorColour(p.sector)}">
+    ${failed||supportOnly?`<div class="classPartySelect thresholdPartyStatic" aria-label="${esc(p.name)} ${failed?"failed to cross threshold":"outside support only"}">`:`<button class="classPartySelect" data-party="${p.id}" aria-label="${selected?"Remove":"Invite"} ${esc(p.name)} ${selected?"from":"to"} coalition">`}
       <img class="classLeaderPhoto" src="${p.photo}" alt="${esc(p.leader)}">
       ${ballot?`<img class="classBallotCard" src="${ballot}" alt="${esc(p.name)} ballot card">`:""}
       <div class="classPartyText"><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span></div>
       <div class="classSeatCount">${p.seats}</div>
-    ${failed?`</div>`:`</button>`}
+    ${failed||supportOnly?`</div>`:`</button>`}
     <button class="compactPositionsCue" data-party-info="${p.id}" type="button"><span class="positionsIcon">ⓘ</span><span>View Positions</span><span class="positionsArrow">›</span></button>
-    ${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:""}
+    ${failed?`<div class="thresholdFailureNote">FAILED TO CROSS THRESHOLD</div>`:supportOnly?`<div class="supportOnlyNote">OUTSIDE SUPPORT ONLY</div>`:""}
   </article>`;
 }
 
@@ -922,7 +925,7 @@ function coalitionSummaryPanel(){
       ${c.map(p=>`<article class="summaryLeaderCard" style="--sector:${sectorColour(p.sector)}"><img src="${p.photo}" alt="${esc(p.leader)}"><div><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span><small>${p.seats} seats</small></div></article>`).join("")}
     </div>
 
-    ${minority?`<div class="callout ${m.passes?"warn":"danger"}"><h2>${m.passes?"Mathematically possible, politically extremely fragile":"Not enough support"}</h2><p>${m.yes} vote in favour, ${m.no} vote against${m.utjAbstentions?`, with ${m.utjAbstentions} UTJ abstentions`:""}. Joint List remains outside government and provides external support. ${m.raamInside?"Ra'am is a coalition member.":"Ra'am also provides external support."} ${m.utjAbstentions?"The UTJ abstention is a reported possibility, not a confirmed agreement.":""}</p></div>`:""}
+    ${minority?`<div class="callout ${m.passes?"warn":"danger"}"><h2>${m.passes?"Mathematically possible, politically extremely fragile":"Not enough support"}</h2><p>${m.yes} vote in favour, ${m.no} vote against${m.utjAbstentions?`, with ${m.utjAbstentions} UTJ abstentions`:""}. Joint List remains outside government and provides external support. ${m.raamInside?"Ra'am is a coalition member.":"Ra'am also provides external support."} Yisrael Beiteinu is compatible with Ra'am in this game, but not with the Joint List. ${m.utjAbstentions?"The UTJ abstention is a reported possibility, not a confirmed agreement.":""}</p></div>`:""}
     <div class="summarySuspense"><strong>${minority?"The arithmetic can work, but this is an exceptionally unstable route.":"You have a majority. But can it survive?"}</strong><span>${minority?"It depends on several parties outside government acting exactly as assumed. Continue to test the policy and relationship pressures.":"Compatibility is not revealed until negotiations begin."}</span></div>
     <div class="summaryActions"><button class="ghost" id="summaryBack">Change coalition</button><button class="secondary hugeBtn" id="summaryPolicyStart" ${minority&&!m.passes?'disabled style="opacity:.45;cursor:not-allowed"':""}>Begin coalition negotiations</button></div>
   </section>`;
@@ -1076,7 +1079,7 @@ function bindSharedEvents(){
   document.getElementById("resetBtn").addEventListener("click",resetGame);
   document.getElementById("switchModeBtn").addEventListener("click",()=>{state.stage="welcome";state.mode=null;state.selected.clear();state.policyDecisions={};state.classStep="build";state.minorityMode=false;render();});
   document.querySelectorAll("[data-sector]").forEach(b=>b.addEventListener("click",()=>{state.sector=b.dataset.sector;render();}));
-  document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",(event)=>{event.stopPropagation();const id=b.dataset.party;const party=activeParties().find(p=>p.id===id);if(party?.failedThreshold){state.selected.delete(id);render();return;}state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();}));
+  document.querySelectorAll("[data-party]").forEach(b=>b.addEventListener("click",(event)=>{event.stopPropagation();const id=b.dataset.party;const party=activeParties().find(p=>p.id===id);if(party?.failedThreshold || party?.coalitionEligible===false){state.selected.delete(id);render();return;}state.selected.has(id)?state.selected.delete(id):state.selected.add(id);state.policyDecisions={};state.minorityMode=false;render();}));
   document.querySelectorAll("[data-party-info]").forEach(card=>{const open=()=>{state.infoParty=card.dataset.partyInfo;render();};card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});});
   document.getElementById("partyInfoClose")?.addEventListener("click",()=>{state.infoParty=null;render();});
   document.getElementById("partyInfoBackdrop")?.addEventListener("click",e=>{if(e.target.id==="partyInfoBackdrop"){state.infoParty=null;render();}});

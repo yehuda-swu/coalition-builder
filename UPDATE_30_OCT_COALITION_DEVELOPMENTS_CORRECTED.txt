@@ -1,0 +1,13 @@
+61: Build the Coalition
+Corrected coalition developments update
+30 October 2026
+
+Changes:
+1. Joint List remains visible but is treated as OUTSIDE SUPPORT ONLY for the minority government route.
+2. Yisrael Beiteinu no longer has an automatic veto against Ra'am. It still rejects the Joint List, Shas and UTJ and refuses Netanyahu.
+3. Ra'am can therefore remain a possible coalition or outside support partner with Yisrael Beiteinu, but this does not by itself create a majority.
+4. The reported UTJ role is abstention from outside government, not coalition membership.
+5. The Yashar + B'Yachad + Democrats route can reach 60 confidence votes with Joint List and Ra'am outside support. With 7 UTJ abstentions, the confidence arithmetic becomes 60 in favour to 53 against.
+6. This route is explicitly labelled mathematically possible but politically extremely fragile.
+7. If Yisrael Beiteinu is included, Joint List support is unavailable. Even with Ra'am support and 7 UTJ abstentions, the route remains short.
+8. Final seat allocation and image assets are unchanged.

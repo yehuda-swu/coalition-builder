@@ -1139,3 +1139,8 @@ linear-gradient(145deg,#071f3d,#0a3b68 58%,#0b78b7);position:relative;overflow:h
 .currentCountTable .popFinal strong{
   font-size:1.2rem;
 }
+
+/* 30 October 2026 coalition developments correction */
+.supportOnlyParty{opacity:.96}
+.supportOnlyNote{width:100%;margin-top:8px;border:1.5px solid #4f78a8;border-radius:10px;background:#eef5fd;color:#244f80;padding:9px 10px;text-align:center;font-size:.72rem;font-weight:950;letter-spacing:.035em;line-height:1.2}
+.partyCard .supportOnlyNote{margin-top:0;padding:10px 12px;font-size:.76rem}
