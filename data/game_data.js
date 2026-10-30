@@ -105,7 +105,7 @@ window.GAME_DATA = {
         arab:{stance:"Oppose",strength:"Flexible"},
         charedi:{stance:"Support",strength:"Red line"}
       },
-      veto:["utj","shas"]
+      veto:["utj","shas","raam","joint_arab_list"]
     },
     {
       id:"amcha_yisrael", active:true, name:"Amcha Yisrael", leader:"Ofer Winter", seats:5, sector:"Right",
@@ -202,7 +202,7 @@ window.GAME_DATA = {
       id:"joint_arab_list", active:true, name:"Joint Arab List", leader:"Youssef Jabareen", seats:5, sector:"Arab",
       logo:"assets/logos/joint_arab_list.webp", photo:"assets/leaders/jabareen.webp",
       coalitionEligible:false,
-      coalitionEligibilityReason:"Joint Arab List will not take part in any government.",
+      coalitionEligibilityReason:"Joint Arab List has said it may support an anti Netanyahu government from outside, but it is not offering to formally join the coalition.",
       leadership:"Refuses Netanyahu",
       positions:{
         security:{stance:"Support",strength:"Red line"},

@@ -37,30 +37,45 @@ function minorityScenario(){
   const selected=chosen();
   const raam=activeParties().find(p=>p.id==="raam");
   const joint=activeParties().find(p=>p.id==="joint_arab_list");
+  const utj=activeParties().find(p=>p.id==="utj");
   const raamInside=state.selected.has("raam");
   const jointInside=state.selected.has("joint_arab_list");
+  const utjInside=state.selected.has("utj");
+  const libermanInside=state.selected.has("yisrael_beitenu");
+  const shasInside=state.selected.has("shas");
   const largest=[...selected].sort((a,b)=>b.seats-a.seats)[0];
   const yasharLed=largest?.id==="yashar" && !state.selected.has("likud");
 
-  // Minority government is a coalition sensitive route, not a generic
-  // arithmetic shortcut. In this game, Arab party support or abstention is
-  // potentially available to a Yashar led government. It is not available
-  // to a Likud led right bloc, where Ra'am and Joint Arab List are treated
-  // as opposition votes against the government.
-  const available=!jointInside && total<majority && yasharLed;
-  const externalSupport=available && !raamInside ? (raam?.seats||0) : 0;
-  const abstentions=available ? (joint?.seats||0) : 0;
-  const yes=total+externalSupport;
-  const no=available
-    ? 120-total-externalSupport-abstentions
-    : 120-total;
+  // Post election minority route, updated 30 October 2026.
+  // Joint List may provide outside support but is not treated as a coalition member.
+  // Ra'am may be inside government or provide outside support.
+  // A reported UTJ abstention can reduce the number voting against the government.
+  // Yisrael Beitenu blocks this route because Liberman has rejected a minority
+  // government that relies directly or indirectly on Arab parties.
+  const baseAvailable=total<majority && yasharLed && !jointInside;
+  const libermanBlock=baseAvailable && libermanInside;
+  const shasBlock=baseAvailable && shasInside;
+  const available=baseAvailable && !libermanBlock && !shasBlock;
+
+  const jointExternalSupport=available ? (joint?.seats||0) : 0;
+  const raamExternalSupport=available && !raamInside ? (raam?.seats||0) : 0;
+  const yesBeforeAbstention=total+jointExternalSupport+raamExternalSupport;
+  const noBeforeAbstention=available ? 120-yesBeforeAbstention : 120-total;
+  const needsUtjAbstention=available && !utjInside && yesBeforeAbstention<=noBeforeAbstention;
+  const utjAbstentions=needsUtjAbstention ? (utj?.seats||0) : 0;
+  const yes=yesBeforeAbstention;
+  const no=available ? 120-yes-utjAbstentions : 120-total;
 
   let reason="";
   if(total<majority && !available){
     if(jointInside){
-      reason="Joint Arab List will not take part in a governing coalition.";
+      reason="Joint Arab List may support an anti Netanyahu government from outside, but it is not offering to formally join the coalition.";
+    }else if(libermanBlock){
+      reason="Yisrael Beitenu has ruled out a minority government that relies directly or indirectly on Arab parties, so this route cannot include Avigdor Liberman's party.";
+    }else if(shasBlock){
+      reason="Shas has ruled out an Eisenkot led government without Likud, so it cannot be used to unlock this minority government route.";
     }else if(!yasharLed){
-      reason=`This ${total} seat coalition cannot use the minority government route. In this scenario, Ra'am and the Joint Arab List would oppose the government rather than provide external support or abstain.`;
+      reason=`This ${total} seat coalition cannot use the post election minority government route. It must be Yashar led and cannot include Likud.`;
     }
   }
 
@@ -68,8 +83,14 @@ function minorityScenario(){
     available,
     yasharLed,
     raamInside,
-    externalSupport,
-    abstentions,
+    jointExternalSupport,
+    raamExternalSupport,
+    externalSupport:jointExternalSupport+raamExternalSupport,
+    utjAbstentions,
+    abstentions:utjAbstentions,
+    needsUtjAbstention,
+    libermanBlock,
+    shasBlock,
     yes,
     no,
     reason,
@@ -222,9 +243,13 @@ function coalitionStrength(){
   if(state.minorityMode){
     const coalitionSeats=parties.reduce((sum,p)=>sum+(Number(p.seats)||0),0);
     const gap=Math.max(0,61-coalitionSeats);
+    const m=minorityScenario();
     add(-18,"The government depends on parties outside the coalition to survive confidence votes.");
     if(gap>=4) add(-6,`The coalition is ${gap} seats short of an outright majority.`);
     if(gap>=7) add(-5,"The government is substantially below the 61 seat majority threshold.");
+    if(m.jointExternalSupport) add(-18,"Joint List support comes from outside government and is a newly stated possibility rather than a settled coalition agreement.");
+    if(m.raamExternalSupport) add(-10,"Ra'am support is also required from outside the formal coalition.");
+    if(m.utjAbstentions) add(-20,"The confidence vote depends on a reported UTJ abstention that has not been formally agreed.");
   }
 
   if(parties.length>=6) add(-4,"A six party or larger coalition increases the burden of maintaining agreement.");
@@ -257,7 +282,7 @@ function coalitionReport(){
   }
 
   if(hasJointArabList()){
-    reasons.push("Joint Arab List will not take part in any government. Any coalition containing Joint Arab List automatically fails.");
+    reasons.push("Joint Arab List will not formally join the government. It may provide outside support, but selecting it as a coalition member automatically fails.");
   }
 
   eligibility.forEach(x=>reasons.push(`${x.party.name}: ${x.reason}`));
@@ -334,14 +359,15 @@ function commonTopbar(label){
 function instructionsPanel(){
   return `<section class="quickInstructions">
     <strong>How to play</strong>
-    <span>Build a coalition of at least 61 seats. If you fall short, a viable coalition may unlock an advanced minority government route. Then test the agreement through policy negotiations, party relationships and leadership.</span>
+    <span>Build a coalition of at least 61 seats. If you fall short, a viable coalition may unlock a fragile minority government route. Then test the agreement through policy negotiations, party relationships and leadership.</span>
   </section>`;
 }
 
 function pollingSnapshotPanel(){
   const seat=electionMeta?.seatPoll;
   const pm=electionMeta?.preferredPM;
-  const isCurrentCount=seat?.kind==="current_count";
+  const isCurrentCount=seat?.kind==="current_count" || seat?.kind==="final_count";
+  const isFinalCount=seat?.kind==="final_count";
   const polls=pm?.polls || (pm?.comparisons ? [{
     source:pm.source,
     date:pm.date,
@@ -371,7 +397,7 @@ function pollingSnapshotPanel(){
 
   return `<section class="pollingStrip">
     <div class="seatPollMeta ${isCurrentCount?"currentCountMeta":""}">
-      <div class="pollEyebrow">${isCurrentCount?"Provisional count update":"Election Night Exit Polls"}</div>
+      <div class="pollEyebrow">${isFinalCount?"Final election result":isCurrentCount?"Provisional count update":"Election Night Exit Polls"}</div>
       <strong>${esc(seat?.label||"Polling scenario")}</strong>
       <span>${esc(seat?.date||"")} · ${esc(seat?.source||"")}</span>
       <small class="${isCurrentCount?"countNotice":""}">${esc(seat?.note||"")}</small>
@@ -392,7 +418,8 @@ function pollOfPollsTable(){
   const detail=electionMeta?.pollOfPollsDetail;
   if(!detail?.sources?.length) return "";
   const finalSeats=detail.finalSeats||{}, averages=detail.rawAverage||{}, sources=detail.sources;
-  const isCurrentCount=detail.mode==="current_count";
+  const isCurrentCount=detail.mode==="current_count" || detail.mode==="final_count";
+  const isFinalCount=detail.mode==="final_count";
 
   const displayOrder=detail.displayOrder||[];
   const orderIndex=new Map(displayOrder.map((id,index)=>[id,index]));
@@ -435,9 +462,9 @@ function pollOfPollsTable(){
     return `<section class="popPanel currentCountPanel">
       <div class="popTop">
         <div>
-          <div class="pollEyebrow">Provisional count update</div>
-          <h2>Current Seat Count</h2>
-          <p>Approximately 94.4% of votes have been counted. Counting is still ongoing.</p>
+          <div class="pollEyebrow">${isFinalCount?"Final election result":"Provisional count update"}</div>
+          <h2>${isFinalCount?"Final Seat Allocation":"Current Seat Count"}</h2>
+          <p>${isFinalCount?"Votes have been counted. This is the final 120 seat allocation.":"Counting is still ongoing."}</p>
         </div>
         <div class="popHeadline">${headline}</div>
       </div>
@@ -446,13 +473,13 @@ function pollOfPollsTable(){
         <table class="popTable currentCountTable">
           <thead><tr>
             <th class="popPartyHead">Party</th>
-            <th class="popFinalHead"><span>Current count</span><small>seats</small></th>
+            <th class="popFinalHead"><span>${isFinalCount?"Final result":"Current count"}</span><small>seats</small></th>
           </tr></thead>
           <tbody>${tableRows}</tbody>
         </table>
       </div>
       <div class="popFoot">
-        <span>Count update · 29 October 2026 · 11:09:16 AM</span>
+        <span>${isFinalCount?"Final result · 30 October 2026":"Count update"}</span>
         <span>${failed?`Failed to cross the threshold: ${esc(failed)}.`:""}</span>
       </div>
     </section>`;
@@ -573,7 +600,7 @@ function renderWorkshop(){
 
 function workshopStageHeader(){
   const map={
-    build:["Audience Challenge","Build a government","Ask the audience which party should join next. Aim for 61, or discover whether a minority government route becomes possible."],
+    build:["Audience Challenge","Build a government","Ask the audience which party should join next. Aim for 61, or discover whether a fragile minority government route becomes possible."],
     summary:[state.minorityMode?"Minority Route":"Majority Reached","Your proposed government",state.minorityMode?"Review the confidence vote arithmetic before negotiations begin.":"Review the audience coalition before negotiations begin."],
     policy:["Audience Negotiation","Can they compromise?","Invite arguments from the room, then record the audience decision."],
     relationships:["Coalition Reality Check","Will these parties actually govern together?","Reveal party to party vetoes only after the audience has built and negotiated the coalition."],
@@ -593,7 +620,7 @@ function workshopBuildStage(){
       <div><span>Current coalition</span><strong>${chosen().length?chosen().map(p=>esc(p.name)).join(" · "):"No parties selected yet"}</strong></div>
       <div class="workshopScore">${total}<small>/ ${majority}</small></div>
     </section>
-    ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:(minorityScenario().passes?`<div class="classAction"><button class="secondary hugeBtn" id="minorityStart">Explore minority government</button></div>`:(total>=50&&minorityScenario().reason?`<div class="callout danger"><h2>Minority government unavailable</h2><p>${esc(minorityScenario().reason)} You need to bring more parties into your coalition.</p></div>`:""))}`;
+    ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:(minorityScenario().passes?`<div class="classAction"><button class="secondary hugeBtn" id="minorityStart">Explore fragile minority route</button></div>`:(total>=41&&minorityScenario().reason?`<div class="callout danger"><h2>Minority government unavailable</h2><p>${esc(minorityScenario().reason)} You need to bring more parties into your coalition.</p></div>`:""))}`;
 }
 
 function workshopPartyTile(p){
@@ -662,7 +689,7 @@ function workshopLeadershipStage(){
 
 function classroomStageHeader(){
   const map={
-    build:["Stage One","Build a government","Choose parties together. Aim for 61 seats, or see whether an advanced minority government route becomes possible."],
+    build:["Stage One","Build a government","Choose parties together. Aim for 61 seats, or see whether a fragile minority government route becomes possible."],
     summary:[state.minorityMode?"Minority Route":"Majority Reached","Review your proposed government",state.minorityMode?"Review the confidence vote arithmetic before negotiations begin.":"You have the numbers. Review the coalition before negotiations begin."],
     policy:["Stage Two","Negotiate the policy differences","Discuss each issue as a class and decide what the parties would do."],
     relationships:["Stage Three","Test the party relationships","Now reveal whether any selected parties have ruled out governing together."],
@@ -683,7 +710,7 @@ function classroomBuildStage(){
     <div><h2>Current coalition</h2><p>${chosen().length?chosen().map(p=>esc(p.name)).join(" · "):"No parties selected yet"}</p></div>
     <strong>${total} / ${majority}</strong>
   </section>
-  ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:(minorityScenario().passes?`<div class="classAction"><button class="secondary hugeBtn" id="minorityStart">Explore minority government</button></div>`:(total>=50&&minorityScenario().reason?`<div class="callout danger"><h2>Minority government unavailable</h2><p>${esc(minorityScenario().reason)} You need to bring more parties into your coalition.</p></div>`:""))}`;
+  ${total>=majority?`<div class="classAction"><button class="secondary hugeBtn" id="summaryStart">Review proposed government</button></div>`:(minorityScenario().passes?`<div class="classAction"><button class="secondary hugeBtn" id="minorityStart">Explore fragile minority route</button></div>`:(total>=41&&minorityScenario().reason?`<div class="callout danger"><h2>Minority government unavailable</h2><p>${esc(minorityScenario().reason)} You need to bring more parties into your coalition.</p></div>`:""))}`;
 }
 
 function classroomPolicyStage(){
@@ -727,15 +754,15 @@ function classroomRelationshipStage(){
       </section>
       <div class="coalitionEligibilityBoard">
         <div class="coalitionEligibilityCard">
-          <div class="eligibilityStamp">ABSOLUTE COALITION BLOCK</div>
-          <h3>Joint Arab List will not take part in any government</h3>
-          <p>No coalition containing Joint Arab List can proceed.</p>
-          <strong>There is no negotiation, concession or workaround.</strong>
+          <div class="eligibilityStamp">FORMAL COALITION BLOCK</div>
+          <h3>Joint Arab List will not formally join the government</h3>
+          <p>The Joint Arab List may support an anti Netanyahu government from outside, but it cannot be selected as a formal coalition member.</p>
+          <strong>Remove it from the formal coalition. Outside support can be explored through the minority government route.</strong>
         </div>
       </div>
       <div class="callout danger">
         <h2>Coalition cannot form</h2>
-        <p>Return to coalition building, remove Joint Arab List and find another route to 61 seats.</p>
+        <p>Return to coalition building and remove Joint Arab List from the formal coalition. It may still provide outside support in a minority government scenario.</p>
         <button class="dangerBtn hugeBtn" id="relationshipBackBuild">Return to coalition</button>
       </div>`;
   }
@@ -764,16 +791,16 @@ function workshopRelationshipStage(){
   if(hasJointArabList()){
     return `
       <section class="workshopLeadershipHero">
-        <div class="audiencePrompt lightPrompt">ABSOLUTE COALITION BLOCK</div>
-        <h2>Joint Arab List will not take part in any government</h2>
-        <p>No coalition containing Joint Arab List can proceed.</p>
+        <div class="audiencePrompt lightPrompt">FORMAL COALITION BLOCK</div>
+        <h2>Joint Arab List will not formally join the government</h2>
+        <p>The Joint Arab List may support an anti Netanyahu government from outside, but it cannot be selected as a formal coalition member.</p>
       </section>
       <div class="coalitionEligibilityBoard workshopEligibility">
         <div class="coalitionEligibilityCard">
-          <div class="eligibilityStamp">NO NEGOTIATION POSSIBLE</div>
-          <h3>Joint Arab List must be removed</h3>
-          <p>The audience must now find another route to 61 seats.</p>
-          <strong>There is no concession or workaround.</strong>
+          <div class="eligibilityStamp">OUTSIDE SUPPORT ONLY</div>
+          <h3>Joint Arab List must remain outside government</h3>
+          <p>Remove it as a formal coalition member. It may still support an anti Netanyahu minority government from outside.</p>
+          <strong>Outside support is explored through the fragile minority route.</strong>
         </div>
       </div>
       <div class="classAction">
@@ -883,7 +910,7 @@ function coalitionSummaryPanel(){
   return `<section class="coalitionSummaryScreen" id="coalitionSummaryScreen">
     <div class="summaryEyebrow">${minority?"Minority government scenario":"Your proposed government"}</div>
     <h2>${total} coalition seats</h2>
-    <p class="summaryIntro">${minority?(m.raamInside?`Your coalition does not have 61 seats. Ra'am is a coalition member, while the Joint Arab List's ${m.abstentions} MKs abstain in the confidence vote. Abstentions are not counted as votes against the government.`:`Your coalition does not have 61 seats. In this advanced scenario, Ra'am remains outside government but provides ${m.externalSupport} votes of external support, while the Joint Arab List's ${m.abstentions} MKs abstain. Abstentions are not counted as votes against the government.`):"You have the numbers. Review your proposed government before negotiations begin."}</p>
+    <p class="summaryIntro">${minority?`Your coalition does not have 61 seats. In this exceptional post election scenario, the Joint List provides ${m.jointExternalSupport} votes from outside government. ${m.raamInside?`Ra'am is a coalition member.`:`Ra'am provides a further ${m.raamExternalSupport} votes from outside government.`} ${m.utjAbstentions?`The route also relies on ${m.utjAbstentions} UTJ MKs abstaining, based on reports rather than a confirmed agreement.`:"No UTJ abstention is required for this arithmetic."}`:"You have the numbers. Review your proposed government before negotiations begin."}</p>
 
     <div class="summaryMetrics">
       <div><strong>${c.length}</strong><span>coalition parties</span></div>
@@ -895,8 +922,8 @@ function coalitionSummaryPanel(){
       ${c.map(p=>`<article class="summaryLeaderCard" style="--sector:${sectorColour(p.sector)}"><img src="${p.photo}" alt="${esc(p.leader)}"><div><strong>${esc(p.name)}</strong><span>${esc(p.leader)}</span><small>${p.seats} seats</small></div></article>`).join("")}
     </div>
 
-    ${minority?`<div class="callout ${m.passes?"success":"danger"}"><h2>${m.passes?"Confidence vote can pass":"Not enough support"}</h2><p>${m.yes} vote in favour, ${m.no} vote against, ${m.abstentions} abstain. The Joint Arab List is not part of the government. ${m.raamInside?"Ra'am is a coalition member.":"Ra'am provides external support but is not a coalition member."}</p></div>`:""}
-    <div class="summarySuspense"><strong>${minority?"The numbers can work. But can the coalition itself survive?":"You have a majority. But can it survive?"}</strong><span>Compatibility is not revealed until negotiations begin.</span></div>
+    ${minority?`<div class="callout ${m.passes?"warn":"danger"}"><h2>${m.passes?"Mathematically possible, politically extremely fragile":"Not enough support"}</h2><p>${m.yes} vote in favour, ${m.no} vote against${m.utjAbstentions?`, with ${m.utjAbstentions} UTJ abstentions`:""}. Joint List remains outside government and provides external support. ${m.raamInside?"Ra'am is a coalition member.":"Ra'am also provides external support."} ${m.utjAbstentions?"The UTJ abstention is a reported possibility, not a confirmed agreement.":""}</p></div>`:""}
+    <div class="summarySuspense"><strong>${minority?"The arithmetic can work, but this is an exceptionally unstable route.":"You have a majority. But can it survive?"}</strong><span>${minority?"It depends on several parties outside government acting exactly as assumed. Continue to test the policy and relationship pressures.":"Compatibility is not revealed until negotiations begin."}</span></div>
     <div class="summaryActions"><button class="ghost" id="summaryBack">Change coalition</button><button class="secondary hugeBtn" id="summaryPolicyStart" ${minority&&!m.passes?'disabled style="opacity:.45;cursor:not-allowed"':""}>Begin coalition negotiations</button></div>
   </section>`;
 }
@@ -908,11 +935,9 @@ function coalitionPanel(){
   if(state.classStep==="build" && total>=majority){
     action=`<div class="callout success"><h2>Majority reached</h2><p>You have ${total} seats. Review your proposed government before negotiations begin.</p><button class="secondary" id="summaryStart">Review proposed government</button></div>`;
   }else if(state.classStep==="build" && m.available && m.passes){
-    const supportText=m.raamInside
-      ? `Ra'am is already inside your coalition, while the Joint Arab List's ${m.abstentions} MKs abstain`
-      : `Ra'am's ${m.externalSupport} MKs support the confidence vote from outside government, while the Joint Arab List's ${m.abstentions} MKs abstain`;
-    action=`<div class="callout warn"><h2>No 61? There may be another route</h2><p>Your ${total} seat Yashar led coalition could attempt a minority government. If ${supportText}, the vote would be ${m.yes} to ${m.no}.</p><button class="secondary" id="minorityStart">Explore minority government</button></div>`;
-  }else if(state.classStep==="build" && total>=50 && total<majority && m.reason){
+    const supportText=`the Joint List provides ${m.jointExternalSupport} votes from outside government${m.raamInside?", Ra'am sits inside the coalition":`, Ra'am provides ${m.raamExternalSupport} outside votes`}${m.utjAbstentions?`, and ${m.utjAbstentions} UTJ MKs abstain`:""}`;
+    action=`<div class="callout warn"><h2>No 61? A very fragile route may exist</h2><p>Your ${total} seat Yashar led coalition could attempt a minority government if ${supportText}. The confidence vote would be ${m.yes} to ${m.no}. This route depends on new public signals and, where relevant, a reported UTJ abstention rather than a confirmed agreement.</p><button class="secondary" id="minorityStart">Explore fragile minority route</button></div>`;
+  }else if(state.classStep==="build" && total>=41 && total<majority && m.reason){
     action=`<div class="callout danger"><h2>Minority government unavailable</h2><p>${esc(m.reason)} You need to bring more parties into your coalition.</p></div>`;
   }
   return `<section class="coalitionBox"><div class="sectionHead"><div><h2>Your coalition</h2><p>Selected parties and seats</p></div></div>${rows}</section>${action}`;
@@ -955,15 +980,15 @@ function individualRelationshipStage(){
       <h2>Party relationship check</h2>
       <div class="coalitionEligibilityBoard">
         <div class="coalitionEligibilityCard">
-          <div class="eligibilityStamp">ABSOLUTE COALITION BLOCK</div>
-          <h3>Joint Arab List will not take part in any government</h3>
-          <p>No coalition containing Joint Arab List can proceed.</p>
-          <strong>There is no negotiation, concession or workaround.</strong>
+          <div class="eligibilityStamp">FORMAL COALITION BLOCK</div>
+          <h3>Joint Arab List will not formally join the government</h3>
+          <p>The Joint Arab List may support an anti Netanyahu government from outside, but it cannot be selected as a formal coalition member.</p>
+          <strong>Remove it from the formal coalition. Outside support can be explored through the minority government route.</strong>
         </div>
       </div>
       <div class="callout danger">
         <h2>Coalition cannot form</h2>
-        <p>Return to coalition building, remove Joint Arab List and find another route to 61 seats.</p>
+        <p>Return to coalition building and remove Joint Arab List from the formal coalition. It may still provide outside support in a minority government scenario.</p>
         <button class="dangerBtn" id="relationshipBackBuild">Return to coalition</button>
       </div>
     </section>`;
@@ -1026,7 +1051,7 @@ function renderReport(){
     <img src="assets/branding/swu_uk_horizontal.webp" alt="StandWithUs UK" style="width:190px;margin-bottom:18px">
     <div class="outcomeIcon">${r.success?"✓":"!"}</div>
     <h1 class="outcomeTitle">${r.success?"You built the coalition":"This coalition is doomed to fail"}</h1>
-    <p class="outcomeLead">${r.success?(state.minorityMode?`Your ${r.total} seat minority coalition can take office in this scenario because the confidence vote passes ${m.yes} to ${m.no}, with ${m.abstentions} abstentions.`:"Your coalition passed the numbers, relationship, policy and leadership tests."):"Your coalition failed one or more tests. The report below explains why."}</p>
+    <p class="outcomeLead">${r.success?(state.minorityMode?`Your ${r.total} seat minority coalition can take office in this scenario because the confidence vote passes ${m.yes} to ${m.no}${m.utjAbstentions?`, with ${m.utjAbstentions} UTJ abstentions`:""}. This is a mathematically viable but politically extremely fragile route that depends on outside support.`:"Your coalition passed the numbers, relationship, policy and leadership tests."):"Your coalition failed one or more tests. The report below explains why."}</p>
     <div class="resultGrid">
       <div class="resultMetric"><strong>${r.total}</strong><span>coalition seats</span></div>
       <div class="resultMetric"><strong>${c.length}</strong><span>parties</span></div>
@@ -1102,5 +1127,5 @@ function resetGame(){
   state.selected.clear();state.sector="All";state.stage="build";state.policyDecisions={};state.classStep="build";state.minorityMode=false;render();window.scrollTo({top:0,behavior:"smooth"});
 }
 
-if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service_worker.js").catch(()=>{}))}
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("service_worker.js?v=20261030coalition3").catch(()=>{}))}
 render();

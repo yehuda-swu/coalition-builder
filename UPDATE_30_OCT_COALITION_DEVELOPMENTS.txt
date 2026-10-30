@@ -1,0 +1,11 @@
+61: BUILD THE COALITION
+POST ELECTION COALITION DEVELOPMENTS
+30 OCTOBER 2026
+
+Updated game logic:
+
+1. Joint List remains outside any formal coalition, but can provide external support to an anti Netanyahu government.
+2. Yisrael Beitenu blocks the minority route because Avigdor Liberman has rejected a minority government relying directly or indirectly on Arab parties.
+3. A reported UTJ abstention can be used in the minority confidence vote when required. This is explicitly presented as reported and unconfirmed.
+4. The minority government route receives major Coalition Strength penalties and is labelled politically extremely fragile.
+5. Final election seat allocation remains unchanged.
