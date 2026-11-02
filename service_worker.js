@@ -1,12 +1,12 @@
-const CACHE='61_final_result_2026_10_30_coalition_v4';
+const CACHE='61_final_result_2026_11_02_v4';
 const ASSETS=[
   './',
   'index.html',
-  'styles.css?v=20261030coalition4',
-  'app.js?v=20261030coalition4',
+  'styles.css?v=20261102final4',
+  'app.js?v=20261102final4',
   'manifest.json',
-  'data/game_data.js?v=20261030coalition4',
-  'data/election_updates.js?v=20261030coalition4',
+  'data/game_data.js?v=20261102final4',
+  'data/election_updates.js?v=20261102final4',
   'assets/ballots/amcha_yisrael.png',
   'assets/ballots/byachad.png',
   'assets/ballots/democrats.png',

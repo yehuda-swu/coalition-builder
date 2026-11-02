@@ -1,0 +1,16 @@
+61: BUILD THE COALITION
+2 NOVEMBER 2026 FINAL STATUS FIX
+
+This update fixes the election status panel so it cannot remain on the older
+29 October provisional count after the final result update.
+
+The deployment package now includes data/election_updates.js, which was
+missing from the previous smaller coalition developments update package.
+
+Displayed status:
+Final election result
+Final Seat Allocation
+30 October 2026
+All votes have been counted. This is the final result and final 120 seat allocation.
+
+Final seats and coalition development logic are unchanged.

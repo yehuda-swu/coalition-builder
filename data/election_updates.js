@@ -2,37 +2,35 @@
 61: BUILD THE COALITION
 ELECTION UPDATE
 
-CURRENT COUNT SNAPSHOT
+FINAL ELECTION RESULT
 
-This update replaces the election night exit poll seat allocation with the
-latest provisional count available on 29 October 2026.
+This update replaces the provisional count with the final seat allocation
+provided on 30 October 2026.
 
-Approximately 94.4% of votes have been counted. Counting is still ongoing.
-
-This is not the final result.
+All 120 Knesset seats are now allocated.
 */
 
 window.ELECTION_UPDATES = {
 
   pollOfPolls: {
-    mode: "current_count",
-    label: "Current Seat Count",
-    updated: "29 October 2026, 11:09:16 AM",
-    methodology: "Current count snapshot with approximately 94.4% of votes counted. No averaging or seat redistribution is applied because the reported seats already total 120.",
-    notice: "Updated: October 29, 2026, at 11:09:16 AM. Approximately 94.4% of votes counted. Counting is still ongoing. This is not the final result.",
+    mode: "final_count",
+    label: "Final Seat Allocation",
+    updated: "30 October 2026",
+    methodology: "Final seat allocation after counting was completed. No averaging or seat redistribution is applied because the reported seats total 120.",
+    notice: "All votes have been counted. This is the final result and final 120 seat allocation.",
     displayOrder: ["likud","yashar","byachad","joint_arab_list","democrats","raam","yisrael_beitenu","otzma_yehudit","utj","shas","hatzionut_hadati"],
     headlinePartyIds: ["likud","yashar","byachad"],
     failedThreshold: ["Amcha Yisrael","Reservists-Economic","The Haredi Public"],
     failedThresholdPartyIds: ["amcha_yisrael","reservists_economic","haredi_public"],
     sources: [
       {
-        id: "current_count",
-        shortName: "Count",
-        name: "Current vote count",
-        pollster: "Current count snapshot",
-        date: "29 October 2026, 11:09:16 AM",
+        id: "final_result",
+        shortName: "Final",
+        name: "Final election result",
+        pollster: "Final count",
+        date: "30 October 2026",
         seats: {
-          likud:26,
+          likud:27,
           yashar:21,
           joint_arab_list:11,
           byachad:12,
@@ -41,7 +39,7 @@ window.ELECTION_UPDATES = {
           raam:8,
           utj:7,
           otzma_yehudit:7,
-          shas:7,
+          shas:6,
           hatzionut_hadati:6,
           amcha_yisrael:0,
           reservists_economic:0,
@@ -226,7 +224,7 @@ DO NOT EDIT BELOW THIS LINE
   });
 
   game.electionMeta = game.electionMeta || {};
-  game.electionMeta.dataVersion = "6.3";
+  game.electionMeta.dataVersion = "7.0";
 
   game.electionMeta.seatPoll = {
     kind: pop.mode || "polling",
@@ -253,7 +251,7 @@ DO NOT EDIT BELOW THIS LINE
     headlinePartyIds: pop.headlinePartyIds || [],
     failedThreshold: pop.failedThreshold || [],
     failedThresholdPartyIds: pop.failedThresholdPartyIds || [],
-    allocationMethod: pop.mode === "current_count" ? "Current reported seat count" : "Poll average, then largest remainder method"
+    allocationMethod: (pop.mode === "current_count" || pop.mode === "final_count") ? "Reported seat count" : "Poll average, then largest remainder method"
   };
 
 })();
