@@ -1,76 +1,45 @@
-const CACHE='61_final_result_2026_11_02_v4';
-const ASSETS=[
-  './',
-  'index.html',
-  'styles.css?v=20261102final4',
-  'app.js?v=20261102final4',
-  'manifest.json',
-  'data/game_data.js?v=20261102final4',
-  'data/election_updates.js?v=20261102final4',
-  'assets/ballots/amcha_yisrael.png',
-  'assets/ballots/byachad.png',
-  'assets/ballots/democrats.png',
-  'assets/ballots/haredi_public.png',
-  'assets/ballots/hatzionut_hadati.png',
-  'assets/ballots/joint_arab_list.png',
-  'assets/ballots/likud.png',
-  'assets/ballots/otzma_yehudit.png',
-  'assets/ballots/raam.png',
-  'assets/ballots/reservists_economic.png',
-  'assets/ballots/shas.png',
-  'assets/ballots/utj.png',
-  'assets/ballots/yashar.png',
-  'assets/ballots/yisrael_beitenu.png',
+/* Offline cache for 61: Build the Coalition, updated 25 November 2026. */
+const CACHE = '61_coalition_unity_20261125_v1';
+const VERSION = '20261125unity1';
+const ASSETS = [
+  './', 'index.html', 'manifest.json',
+  `styles.css?v=${VERSION}`,
+  `coalition_nov_2026.css?v=${VERSION}`,
+  `app.js?v=${VERSION}`,
+  `coalition_nov_2026.js?v=${VERSION}`,
+  `data/game_data.js?v=${VERSION}`,
+  `data/election_updates.js?v=${VERSION}`,
   'assets/branding/swu_uk_horizontal.webp',
   'assets/branding/swu_uk_square.webp',
   'assets/branding/welcome.webp',
-  'assets/leaders/abbas.webp',
-  'assets/leaders/asher_goldknopf.png',
-  'assets/leaders/ben_gvir.webp',
-  'assets/leaders/bennett.webp',
-  'assets/leaders/deri.webp',
-  'assets/leaders/eisenkot.webp',
-  'assets/leaders/gafni_goldknopf.webp',
-  'assets/leaders/golan.webp',
-  'assets/leaders/hendel_zelikha.png',
-  'assets/leaders/jabareen.webp',
-  'assets/leaders/lieberman.webp',
-  'assets/leaders/moti_leitner.png',
-  'assets/leaders/netanyahu.webp',
-  'assets/leaders/ofer_winter.png',
-  'assets/leaders/smotrich.webp',
-  'assets/logos/amcha_yisrael.png',
-  'assets/logos/byachad.webp',
-  'assets/logos/democrats.webp',
-  'assets/logos/haredi_public.png',
-  'assets/logos/hatzionut_hadati.webp',
-  'assets/logos/joint_arab_list.webp',
-  'assets/logos/likud.webp',
-  'assets/logos/otzma_yehudit.webp',
-  'assets/logos/raam.webp',
-  'assets/logos/reservists_economic.png',
-  'assets/logos/shas.webp',
-  'assets/logos/utj.webp',
-  'assets/logos/yashar.png',
-  'assets/logos/yisrael_beitenu.webp'
+  ...[
+    'amcha_yisrael','byachad','democrats','haredi_public','hatzionut_hadati',
+    'joint_arab_list','likud','otzma_yehudit','raam','reservists_economic',
+    'shas','utj','yashar','yisrael_beitenu'
+  ].map(x=>`assets/ballots/${x}.png`),
+  ...[
+    'abbas.webp','asher_goldknopf.png','ben_gvir.webp','bennett.webp',
+    'deri.webp','eisenkot.webp','gafni_goldknopf.webp','golan.webp',
+    'hendel_zelikha.png','jabareen.webp','lieberman.webp',
+    'moti_leitner.png','netanyahu.webp','ofer_winter.png','smotrich.webp'
+  ].map(x=>`assets/leaders/${x}`),
+  ...[
+    'amcha_yisrael.png','byachad.webp','democrats.webp','haredi_public.png',
+    'hatzionut_hadati.webp','joint_arab_list.webp','likud.webp',
+    'otzma_yehudit.webp','raam.webp','reservists_economic.png','shas.webp',
+    'utj.webp','yashar.png','yisrael_beitenu.webp'
+  ].map(x=>`assets/logos/${x}`)
 ];
-
-self.addEventListener('install',event=>{
+self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
 });
-
-self.addEventListener('activate',event=>{
+self.addEventListener('activate', event => {
   event.waitUntil(Promise.all([
     self.clients.claim(),
-    caches.keys().then(keys=>Promise.all(
-      keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))
-    ))
+    caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))
   ]));
 });
-
-self.addEventListener('fetch',event=>{
-  event.respondWith(
-    fetch(event.request).catch(()=>caches.match(event.request))
-  );
+self.addEventListener('fetch', event => {
+  event.respondWith(fetch(event.request).catch(()=>caches.match(event.request)));
 });

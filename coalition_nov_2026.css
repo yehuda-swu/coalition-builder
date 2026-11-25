@@ -1,0 +1,57 @@
+/* Supplement to the existing StandWithUs UK coalition builder design. */
+.novBoard{margin:18px 0 28px;padding:24px;border-radius:20px;background:linear-gradient(136deg,#092b52,#084775);color:#fff;box-shadow:0 18px 44px rgba(6,25,53,.18);font-family:inherit}
+.novBoard *,.novLeadershipStage *{box-sizing:border-box}
+.novBoard h2,.novBoard h3,.novLeadershipStage h2{color:inherit;margin:4px 0 8px}
+.novBoard h2{font-size:clamp(23px,3.5vw,35px);letter-spacing:-.65px}
+.novBoard h3{font-size:clamp(19px,2.8vw,26px)}
+.novBoard p{color:#dfedfa;line-height:1.55;margin:0}
+.novTopline,.novUnityHeading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.novEyebrow{font-weight:800;letter-spacing:1.6px;font-size:10px;color:#9fcee9}
+.novDate{flex-shrink:0;color:#c8dfef;text-align:right;font-size:10px;line-height:1.7;letter-spacing:1px}
+.novDate strong{font-size:12px;color:#fff}
+.novFigures{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.novFigures>div{border:1px solid #5b86ae88;background:#ffffff0f;border-radius:12px;padding:15px}
+.novFigures strong{display:block;font-size:35px;line-height:1;font-weight:900;color:#fff}
+.novFigures span{display:block;font-size:12px;color:#d5e4f5;margin-top:7px}
+.novStories{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin-top:15px}
+.novStories>div{border:1px solid #4679a16f;border-radius:12px;padding:15px;background:#ffffff0c}
+.novStories b{font-size:11px;letter-spacing:1px;color:#a9d9f2}
+.novStories p{margin-top:6px;font-size:13px}
+.novBoard .novSpecific{margin-top:12px;padding:12px 14px;border:1px solid #7daddc88;border-radius:10px;background:#d9eeff0d;font-size:13px}
+.novBoard .novSpecific strong{color:#fff}
+.novBoard .novGood{border-color:#83dabd88}
+.novBoard .novWarning{border-color:#f3ce8c99}
+.novUnity{margin-top:20px;padding:18px;background:#ffffff;border-radius:16px;color:#112b49}
+.novUnity h3{color:#112b49}
+.novUnity p{color:#365570}
+.novUnity .novEyebrow{color:#0073ab}
+.novSeatLabel{font-size:12px;text-align:right;color:#54718b;white-space:nowrap}
+.novSeatLabel strong{display:block;color:#073963;font-size:24px}
+.novChoiceGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.novChoice{display:flex;flex-direction:column;text-align:left;align-items:flex-start;gap:7px;padding:14px;border:2px solid #d7e3ee;border-radius:12px;background:#f6faff;color:#17324f;cursor:pointer;font:inherit;min-height:128px;transition:border-color .1s ease,background .1s ease}
+.novChoice:hover,.novChoice:focus-visible{border-color:#0073ab;outline:2px solid transparent;background:#ebf6ff}
+.novChoice.isSelected{border-color:#0073ab;box-shadow:0 0 0 2px #0073ab30;background:#e5f5ff}
+.novChoice strong{font-size:15px;color:#093b64}
+.novChoice span{font-size:12px;line-height:1.45;color:#365570}
+.novChoice small{margin-top:auto;font-size:10px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#0073ab}
+.novOutcome{padding:11px 13px;background:#edf5fb;border-left:4px solid #0073ab;border-radius:8px;color:#143c62!important;font-size:13px;line-height:1.5}
+.novBoard .novCaution{margin-top:10px;color:#536a7e;font-size:12px}
+.novSources{margin-top:15px;padding-top:10px;border-top:1px solid #7fa4c46b;font-size:12px}
+.novSources summary{font-weight:700;cursor:pointer;list-style:disclosure-closed}
+.novSources[open] summary{margin-bottom:8px}
+.novSources p{font-size:12px;margin-top:9px}
+.novSources a{color:#b8e2ff;text-decoration:underline;text-underline-offset:2px}
+.novLeadershipStage{background:#092b52;color:#fff;border-radius:18px;padding:24px;margin:24px 0}
+.novLeadershipStage p{color:#dfeaf3;line-height:1.5}
+.novLeadershipStage .novChoice{min-height:136px}
+.novLeadershipStage .novOutcome{color:#133f64}
+.novLeadershipStage .classAction{margin-top:18px}
+.novResultNote{border:2px solid #0073ab;border-radius:13px;margin-top:18px;padding:16px;background:#e6f3fb;color:#123d63}
+.novResultNote p{margin:6px 0 0;color:#234f74;line-height:1.5}
+.novResultNote.novBlocked{background:#fff3ea;border-color:#c26f3c;color:#6d3617}
+.novResultNote.novBlocked p{color:#774325}
+@media(max-width:700px){.novBoard{padding:16px;border-radius:14px}.novTopline{flex-direction:column}.novDate{text-align:left}.novStories{grid-template-columns:1fr}.novChoiceGrid{grid-template-columns:1fr}.novChoice{min-height:0}.novUnityHeading{flex-direction:column}.novSeatLabel{text-align:left}.novFigures{gap:5px}.novFigures>div{padding:10px}.novFigures strong{font-size:27px}.novFigures span{font-size:10px}.novLeadershipStage{padding:15px}}
+
+.novMini{display:flex;align-items:center;gap:16px;margin:12px 0 20px;padding:12px 16px;border-radius:10px;background:#e8f3fa;color:#163f62;border-left:4px solid #0073ab;font-size:13px;line-height:1.5}
+.novMini strong{flex-shrink:0;color:#0073ab;font-size:11px;letter-spacing:.5px}
+@media(max-width:700px){.novMini{display:block}.novMini strong{display:block;margin-bottom:3px}}
